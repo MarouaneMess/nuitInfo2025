@@ -1618,6 +1618,47 @@ legend {
   box-shadow: var(--shadow-md);
 }
 
+/* Boutons d'action dans les messages */
+.message-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.message-action-btn {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+
+.message-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-secondary-light));
+}
+
+.message-action-btn:active {
+  transform: translateY(0);
+}
+
+.bot-message .message-action-btn {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+}
+
+.user-message .message-action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 /* Typing indicator */
 .typing-indicator {
   display: flex;

@@ -351,43 +351,56 @@ document.addEventListener('DOMContentLoaded', function() {
    CHATBOT NIRD - Logique intelligente
    ============================================ */
 
-// Base de connaissances du chatbot
+// Historique de conversation pour contexte
+let conversationHistory = [];
+let currentContext = null;
+
+// Base de connaissances améliorée du chatbot
 const chatbotKnowledge = {
   greetings: {
-    patterns: ['bonjour', 'salut', 'hello', 'hey', 'bonsoir', 'coucou', 'bonne journée'],
+    patterns: ['bonjour', 'salut', 'hello', 'hey', 'bonsoir', 'coucou', 'bonne journée', 'bonjour', 'hi'],
     responses: [
-      'Salut ! 👋 Comment puis-je t\'aider avec le numérique NIRD aujourd\'hui ?',
-      'Bonjour ! 🌿 Prêt·e à découvrir le numérique responsable ?',
-      'Hey ! 💚 Je suis là pour t\'aider avec la démarche NIRD.'
-    ]
+      'Salut ! 👋 Je suis ton assistant NIRD. Je peux t\'aider à comprendre le numérique inclusif, responsable et durable. Que veux-tu savoir ?',
+      'Bonjour ! 🌿 Prêt·e à découvrir comment résister aux Big Tech ? Pose-moi tes questions sur le NIRD !',
+      'Hey ! 💚 Je suis là pour t\'aider avec la démarche NIRD. Par où veux-tu commencer ?'
+    ],
+    suggestions: ['Qu\'est-ce que NIRD ?', 'Comment commencer ?', 'Quels logiciels libres ?']
   },
   nird: {
-    patterns: ['nird', 'numérique inclusif', 'numérique responsable', 'numérique durable', 'démarche nird'],
+    patterns: ['nird', 'numérique inclusif', 'numérique responsable', 'numérique durable', 'démarche nird', 'c\'est quoi nird', 'qu\'est-ce que nird', 'définition nird'],
     responses: [
-      'NIRD signifie <strong>Numérique Inclusif, Responsable et Durable</strong>. C\'est une approche qui combine :\n• L\'inclusion numérique (accessibilité pour tous)\n• La responsabilité (protection des données, éthique)\n• La durabilité (sobriété, réemploi du matériel)\n\nTu veux en savoir plus sur un aspect particulier ?',
-      'La démarche NIRD aide les établissements scolaires à réduire leur dépendance aux Big Tech tout en restant performants. C\'est comme un village qui résiste à l\'empire numérique ! 🏰'
-    ]
+      'NIRD signifie <strong>Numérique Inclusif, Responsable et Durable</strong> ! 🌿\n\nC\'est une approche qui combine 3 piliers :\n\n<strong>📱 Inclusif</strong> : Accessible à tous (handicap, équipement, compétences)\n<strong>🔒 Responsable</strong> : Protection des données, éthique, souveraineté\n<strong>🌍 Durable</strong> : Sobriété énergétique, réemploi matériel, écologie\n\nTu veux approfondir un pilier en particulier ?',
+      'La démarche NIRD aide les établissements scolaires à réduire leur dépendance aux Big Tech tout en restant performants. C\'est comme un village qui résiste à l\'empire numérique ! 🏰\n\n<strong>Objectif</strong> : Garder le contrôle sur ses outils et données tout en restant efficace pédagogiquement.',
+      'NIRD = <strong>Numérique Inclusif, Responsable et Durable</strong>\n\n💡 <strong>En pratique</strong> :\n• Utiliser des logiciels libres\n• Réutiliser le matériel\n• Protéger les données des élèves\n• Réduire l\'impact écologique\n• Rendre accessible à tous\n\nC\'est une approche globale pour un numérique éthique à l\'école !'
+    ],
+    suggestions: ['Logiciels libres', 'Reconditionnement', 'Protection données', 'Sobriété numérique']
   },
   logiciels_libres: {
-    patterns: ['logiciel libre', 'logiciels libres', 'open source', 'libre', 'alternatives libres', 'logiciel gratuit'],
+    patterns: ['logiciel libre', 'logiciels libres', 'open source', 'libre', 'alternatives libres', 'logiciel gratuit', 'libreoffice', 'firefox', 'gimp', 'audacity', 'alternative', 'remplacer'],
     responses: [
-      'Les logiciels libres sont des outils que tu peux utiliser, modifier et partager librement ! 🆓\n\nExemples pour l\'école :\n• <strong>LibreOffice</strong> (bureautique)\n• <strong>Firefox</strong> (navigateur)\n• <strong>GIMP</strong> (retouche photo)\n• <strong>Audacity</strong> (audio)\n\nIls respectent ta liberté et tes données !',
-      'Les logiciels libres permettent de ne pas dépendre d\'un seul éditeur. Tu gardes le contrôle sur tes outils numériques. C\'est un pilier du numérique NIRD !'
-    ]
+      'Les logiciels libres sont des outils que tu peux utiliser, modifier et partager librement ! 🆓\n\n<strong>📚 Pour l\'école :</strong>\n• <strong>LibreOffice</strong> → remplace Word/Excel/PowerPoint\n• <strong>Firefox</strong> → navigateur respectueux de la vie privée\n• <strong>GIMP</strong> → retouche photo (alternative Photoshop)\n• <strong>Audacity</strong> → montage audio\n• <strong>VLC</strong> → lecteur vidéo universel\n• <strong>Nextcloud</strong> → stockage cloud libre\n\nIls respectent ta liberté et tes données !',
+      'Les logiciels libres permettent de ne pas dépendre d\'un seul éditeur. Tu gardes le contrôle sur tes outils numériques. C\'est un pilier du numérique NIRD ! 💪\n\n<strong>Avantages</strong> :\n✅ Gratuits et légaux\n✅ Pas de collecte de données\n✅ Modifiables selon tes besoins\n✅ Communauté active\n\nTu veux savoir comment les installer ?',
+      'Passer aux logiciels libres, c\'est facile ! 🚀\n\n<strong>Étape 1</strong> : Choisis un outil que tu utilises souvent\n<strong>Étape 2</strong> : Trouve son équivalent libre\n<strong>Étape 3</strong> : Teste-le avec un petit groupe\n<strong>Étape 4</strong> : Généralise si ça fonctionne\n\nCommence petit, ça marche mieux !'
+    ],
+    suggestions: ['Comment installer ?', 'Alternatives Google ?', 'Alternatives Microsoft ?']
   },
   reconditionnement: {
-    patterns: ['reconditionnement', 'réemploi', 'recyclage', 'matériel', 'ordinateur', 'pc', 'réparer', 'réparation'],
+    patterns: ['reconditionnement', 'réemploi', 'recyclage', 'matériel', 'ordinateur', 'pc', 'réparer', 'réparation', 'vieil ordinateur', 'vieil pc', 'linux', 'système libre'],
     responses: [
       'Le reconditionnement, c\'est donner une seconde vie aux ordinateurs ! ♻️\n\n<strong>Bénéfices :</strong>\n• Réduit les déchets électroniques\n• Économise de l\'argent\n• Crée des projets pédagogiques avec les élèves\n• Sensibilise à l\'écologie\n\nTu peux organiser un atelier "Hôpital des PC" dans ton établissement !',
-      'Au lieu de jeter un PC "trop vieux", on peut installer un système libre léger (comme Linux) et le réutiliser. Ça peut devenir un super projet avec les élèves ! 🌱'
-    ]
+      'Au lieu de jeter un PC "trop vieux", on peut installer un système libre léger (comme Linux) et le réutiliser. Ça peut devenir un super projet avec les élèves ! 🌱\n\n<strong>Étapes :</strong>\n1. Récupérer du matériel\n2. Diagnostiquer les pannes simples\n3. Installer un système libre léger\n4. Effacer proprement les anciennes données\n5. Réutiliser ou donner !',
+      'Un projet de reconditionnement, c\'est génial pour les élèves ! 🎓\n\n<strong>Compétences développées :</strong>\n✅ Démontage/remontage\n✅ Installation système\n✅ Sensibilisation écologie\n✅ Travail d\'équipe\n✅ Valorisation du matériel\n\nRegarde la fiche-action "Atelier reconditionnement" sur cette page !'
+    ],
+    suggestions: ['Comment installer Linux ?', 'Quelle distribution choisir ?', 'Voir la fiche-action']
   },
   big_tech: {
-    patterns: ['big tech', 'gafam', 'google', 'microsoft', 'apple', 'amazon', 'facebook', 'meta', 'dépendance'],
+    patterns: ['big tech', 'gafam', 'google', 'microsoft', 'apple', 'amazon', 'facebook', 'meta', 'dépendance', 'alternatives google', 'alternatives microsoft', 'remplacer google', 'remplacer microsoft'],
     responses: [
       'Les Big Tech (Google, Apple, Facebook, Amazon, Microsoft) dominent le numérique éducatif. 💼\n\n<strong>Problèmes :</strong>\n• Collecte massive de données\n• Dépendance à leurs services\n• Coûts cachés\n• Manque de transparence\n\n<strong>Solutions NIRD :</strong>\n• Utiliser des alternatives libres\n• Héberger ses données en Europe\n• Choisir des services publics/associatifs',
-      'Résister aux Big Tech, c\'est possible ! Commence par remplacer un service à la fois par une alternative libre. Chaque petit pas compte ! 🚶‍♂️'
-    ]
+      'Résister aux Big Tech, c\'est possible ! Commence par remplacer un service à la fois par une alternative libre. Chaque petit pas compte ! 🚶‍♂️\n\n<strong>Alternatives concrètes :</strong>\n• Google Drive → Nextcloud\n• Gmail → ProtonMail / Tutanota\n• Google Docs → LibreOffice Online\n• Chrome → Firefox\n• Teams → Jitsi Meet',
+      'Tu veux remplacer un service Big Tech ? 🎯\n\n<strong>Stratégie :</strong>\n1. Identifie le service le plus utilisé\n2. Trouve 2-3 alternatives libres\n3. Teste avec un petit groupe\n4. Documente la migration\n5. Généralise si ça fonctionne\n\nCommence petit, ça marche mieux !'
+    ],
+    suggestions: ['Alternatives Google', 'Alternatives Microsoft', 'Services libres']
   },
   donnees: {
     patterns: ['données', 'donnée', 'vie privée', 'privacy', 'rgpd', 'souveraineté', 'hébergement', 'données personnelles'],
@@ -404,25 +417,30 @@ const chatbotKnowledge = {
     ]
   },
   diagnostic: {
-    patterns: ['diagnostic', 'évaluer', 'score', 'test', 'questionnaire', 'évaluation'],
+    patterns: ['diagnostic', 'évaluer', 'score', 'test', 'questionnaire', 'évaluation', 'faire le diagnostic', 'commencer diagnostic'],
     responses: [
       'Tu peux faire le diagnostic NIRD directement sur cette page ! 📊\n\nIl te suffit de :\n1. Aller dans la section "Diagnostic NIRD"\n2. Répondre aux 5 questions\n3. Découvrir ton profil de village numérique\n4. Obtenir des recommandations personnalisées\n\nC\'est rapide et ça te donne un plan d\'action !',
-      'Le diagnostic te permet de savoir où en est ton établissement sur l\'échelle NIRD. Tu obtiens ensuite des actions concrètes à mettre en place ! 🎯'
-    ]
+      'Le diagnostic te permet de savoir où en est ton établissement sur l\'échelle NIRD. Tu obtiens ensuite des actions concrètes à mettre en place ! 🎯\n\n<strong>3 profils possibles :</strong>\n🏰 Village assiégé (0-30%)\n🚶 Village en transition (31-70%)\n🛡️ Village résistant (71-100%)\n\nFais le test pour découvrir ton profil !'
+    ],
+    suggestions: ['Faire le diagnostic', 'Voir les fiches-actions']
   },
   fiches_actions: {
-    patterns: ['fiche', 'action', 'agir', 'faire', 'mettre en place', 'démarrage', 'commencer', 'débuter'],
+    patterns: ['fiche', 'action', 'agir', 'faire', 'mettre en place', 'démarrage', 'commencer', 'débuter', 'par où commencer', 'première étape', 'premier pas'],
     responses: [
       'Pour commencer, je te conseille de :\n\n1️⃣ <strong>Faire le diagnostic</strong> pour connaître ta situation\n2️⃣ <strong>Choisir une fiche-action</strong> simple à mettre en place\n3️⃣ <strong>Commencer petit</strong> (une salle, une classe)\n4️⃣ <strong>Impliquer les élèves</strong> dans le projet\n\nLes fiches-actions sont dans la section dédiée ! 📋',
-      'Pas besoin d\'être expert·e pour commencer ! Choisis une action simple (comme remplacer un outil par une alternative libre) et teste-la avec un petit groupe. Chaque pas compte ! 🚀'
-    ]
+      'Pas besoin d\'être expert·e pour commencer ! Choisis une action simple (comme remplacer un outil par une alternative libre) et teste-la avec un petit groupe. Chaque pas compte ! 🚀\n\n<strong>5 fiches-actions disponibles :</strong>\n• Passer une salle sous Linux NIRD\n• Atelier reconditionnement avec les élèves\n• Remplacer un service propriétaire\n• Défi sobriété numérique\n• Créer une charte NIRD',
+      'Les fiches-actions sont des guides pas-à-pas ! 📝\n\nChaque fiche contient :\n✅ Objectif clair\n✅ Étapes détaillées\n✅ Bénéfices attendus\n✅ Astuces pratiques\n✅ Niveau de difficulté\n\nParfait pour démarrer concrètement !'
+    ],
+    suggestions: ['Voir les fiches', 'Faire le diagnostic', 'Première action']
   },
   accessibilite: {
-    patterns: ['accessibilité', 'handicap', 'inclusif', 'inclusion', 'accessible', 'adaptation'],
+    patterns: ['accessibilité', 'handicap', 'inclusif', 'inclusion', 'accessible', 'adaptation', 'lecteur d\'écran', 'contraste', 'navigation clavier'],
     responses: [
       'L\'accessibilité numérique, c\'est rendre les outils utilisables par tous ! ♿\n\n<strong>Points clés :</strong>\n• Navigation au clavier\n• Contrastes de couleurs suffisants\n• Textes alternatifs pour les images\n• Compatibilité avec les lecteurs d\'écran\n• Langage simple et clair\n\nUn numérique inclusif, c\'est un numérique pour tous !',
-      'L\'inclusion numérique fait partie du NIRD. On choisit des outils simples, accessibles et bien expliqués pour que tout le monde puisse participer ! 🌈'
-    ]
+      'L\'inclusion numérique fait partie du NIRD. On choisit des outils simples, accessibles et bien expliqués pour que tout le monde puisse participer ! 🌈\n\n<strong>Bonnes pratiques :</strong>\n✅ Tester avec un lecteur d\'écran\n✅ Vérifier les contrastes (ratio 4.5:1 minimum)\n✅ Permettre la navigation au clavier\n✅ Ajouter des textes alternatifs\n✅ Utiliser un langage clair',
+      'L\'accessibilité, c\'est l\'un des 3 piliers du NIRD ! 🎯\n\n<strong>Pourquoi c\'est important :</strong>\n• Permet à tous les élèves de participer\n• Améliore l\'expérience pour tous\n• Respecte la réglementation\n• Crée une école vraiment inclusive\n\nLes logiciels libres sont souvent plus accessibles !'
+    ],
+    suggestions: ['Outils accessibles', 'Tests accessibilité', 'En savoir plus']
   },
   default: {
     responses: [
@@ -433,37 +451,119 @@ const chatbotKnowledge = {
   }
 };
 
-// Fonction pour trouver la meilleure réponse
+// Fonction améliorée pour trouver la meilleure réponse avec scoring
 function findBestResponse(message) {
   const lowerMessage = message.toLowerCase().trim();
   
-  // Vérifier chaque catégorie
+  // Sauvegarder dans l'historique
+  conversationHistory.push({ role: 'user', message: lowerMessage });
+  if (conversationHistory.length > 10) {
+    conversationHistory.shift(); // Garder seulement les 10 derniers messages
+  }
+  
+  // Scoring des catégories
+  const scores = {};
+  
   for (const [category, data] of Object.entries(chatbotKnowledge)) {
     if (category === 'default') continue;
     
+    let score = 0;
     for (const pattern of data.patterns) {
       if (lowerMessage.includes(pattern)) {
-        const responses = data.responses;
-        return responses[Math.floor(Math.random() * responses.length)];
+        // Score plus élevé si le pattern est un mot complet
+        const regex = new RegExp(`\\b${pattern}\\b`, 'i');
+        score += regex.test(lowerMessage) ? 3 : 1;
       }
+    }
+    
+    if (score > 0) {
+      scores[category] = score;
     }
   }
   
-  // Réponse par défaut
+  // Trouver la catégorie avec le score le plus élevé
+  const bestCategory = Object.keys(scores).reduce((a, b) => 
+    scores[a] > scores[b] ? a : b, null
+  );
+  
+  // Gestion des questions complexes (plusieurs catégories)
+  if (bestCategory && scores[bestCategory] > 0) {
+    currentContext = bestCategory;
+    const responses = chatbotKnowledge[bestCategory].responses;
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    
+    // Ajouter des suggestions contextuelles si disponibles
+    if (chatbotKnowledge[bestCategory].suggestions) {
+      return {
+        text: response,
+        suggestions: chatbotKnowledge[bestCategory].suggestions,
+        actionButtons: getActionButtons(bestCategory)
+      };
+    }
+    
+    return {
+      text: response,
+      suggestions: getDefaultSuggestions(),
+      actionButtons: getActionButtons(bestCategory)
+    };
+  }
+  
+  // Réponse par défaut avec suggestions intelligentes
   const defaultResponses = chatbotKnowledge.default.responses;
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+  return {
+    text: defaultResponses[Math.floor(Math.random() * defaultResponses.length)],
+    suggestions: getDefaultSuggestions(),
+    actionButtons: []
+  };
 }
 
-// Fonction pour formater le message (support markdown simple)
+// Fonction pour obtenir les boutons d'action selon le contexte
+function getActionButtons(category) {
+  const buttons = {
+    'diagnostic': [
+      { text: '📊 Faire le diagnostic', action: 'scroll', target: '#diagnostic' }
+    ],
+    'fiches_actions': [
+      { text: '📋 Voir les fiches', action: 'scroll', target: '#fiches-actions' },
+      { text: '📊 Faire le diagnostic', action: 'scroll', target: '#diagnostic' }
+    ],
+    'logiciels_libres': [
+      { text: '📚 Voir les ressources', action: 'scroll', target: '#ressources' }
+    ],
+    'reconditionnement': [
+      { text: '📋 Voir la fiche-action', action: 'scroll', target: '#fiches-actions' }
+    ],
+    'big_tech': [
+      { text: '📚 Alternatives libres', action: 'scroll', target: '#ressources' }
+    ]
+  };
+  
+  return buttons[category] || [];
+}
+
+// Fonction pour obtenir les suggestions par défaut
+function getDefaultSuggestions() {
+  return [
+    'Qu\'est-ce que NIRD ?',
+    'Comment commencer ?',
+    'Quels logiciels libres ?',
+    'C\'est quoi le reconditionnement ?'
+  ];
+}
+
+// Fonction pour formater le message (support markdown simple amélioré)
 function formatMessage(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/\n/g, '<br>')
-    .replace(/(\d+)[️⃣]/g, '$1️⃣');
+    .replace(/(\d+)[️⃣]/g, '$1️⃣')
+    .replace(/✅/g, '<span style="color: var(--color-success);">✅</span>')
+    .replace(/❌/g, '<span style="color: var(--color-danger);">❌</span>');
 }
 
-// Fonction pour ajouter un message dans le chat
-function addMessage(text, isUser = false) {
+// Fonction améliorée pour ajouter un message dans le chat
+function addMessage(data, isUser = false) {
   const messagesContainer = document.getElementById('chatbot-messages');
   const messageDiv = document.createElement('div');
   messageDiv.className = `chatbot-message ${isUser ? 'user-message' : 'bot-message'}`;
@@ -475,17 +575,60 @@ function addMessage(text, isUser = false) {
   const content = document.createElement('div');
   content.className = 'message-content';
   const p = document.createElement('p');
-  p.innerHTML = formatMessage(text);
-  content.appendChild(p);
   
+  // Gérer les données (string simple ou objet avec suggestions)
+  if (typeof data === 'string') {
+    p.innerHTML = formatMessage(data);
+  } else {
+    p.innerHTML = formatMessage(data.text);
+    
+    // Ajouter les boutons d'action si disponibles
+    if (data.actionButtons && data.actionButtons.length > 0) {
+      const buttonsContainer = document.createElement('div');
+      buttonsContainer.className = 'message-actions';
+      buttonsContainer.style.marginTop = '0.75rem';
+      buttonsContainer.style.display = 'flex';
+      buttonsContainer.style.gap = '0.5rem';
+      buttonsContainer.style.flexWrap = 'wrap';
+      
+      data.actionButtons.forEach(btn => {
+        const button = document.createElement('button');
+        button.className = 'message-action-btn';
+        button.textContent = btn.text;
+        button.addEventListener('click', () => {
+          if (btn.action === 'scroll') {
+            const target = document.querySelector(btn.target);
+            if (target) {
+              const chatbotWindow = document.getElementById('chatbot-window');
+              chatbotWindow.classList.remove('active');
+              setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 300);
+            }
+          }
+        });
+        buttonsContainer.appendChild(button);
+      });
+      
+      content.appendChild(buttonsContainer);
+    }
+  }
+  
+  content.appendChild(p);
   messageDiv.appendChild(avatar);
   messageDiv.appendChild(content);
   messagesContainer.appendChild(messageDiv);
   
-  // Scroll vers le bas
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  // Scroll vers le bas avec animation
+  setTimeout(() => {
+    messagesContainer.scrollTo({
+      top: messagesContainer.scrollHeight,
+      behavior: 'smooth'
+    });
+  }, 100);
   
-  return messageDiv;
+  // Retourner les suggestions si disponibles
+  return typeof data === 'object' ? data.suggestions : null;
 }
 
 // Fonction pour afficher l'indicateur de frappe
@@ -517,12 +660,17 @@ function removeTypingIndicator() {
   }
 }
 
-// Fonction pour envoyer un message
+// Fonction améliorée pour envoyer un message
 function sendMessage() {
   const input = document.getElementById('chatbot-input');
   const message = input.value.trim();
   
   if (!message) return;
+  
+  // Désactiver l'input pendant le traitement
+  input.disabled = true;
+  const sendBtn = document.getElementById('chatbot-send');
+  sendBtn.disabled = true;
   
   // Ajouter le message de l'utilisateur
   addMessage(message, true);
@@ -535,8 +683,43 @@ function sendMessage() {
   setTimeout(() => {
     removeTypingIndicator();
     const response = findBestResponse(message);
-    addMessage(response, false);
+    const suggestions = addMessage(response, false);
+    
+    // Mettre à jour les suggestions dynamiques
+    updateSuggestions(suggestions || getDefaultSuggestions());
+    
+    // Réactiver l'input
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
   }, 800 + Math.random() * 400); // Délai entre 800ms et 1200ms
+}
+
+// Fonction pour mettre à jour les suggestions dynamiques
+function updateSuggestions(suggestions) {
+  let suggestionsContainer = document.querySelector('.chatbot-suggestions');
+  
+  if (!suggestionsContainer) {
+    suggestionsContainer = document.createElement('div');
+    suggestionsContainer.className = 'chatbot-suggestions';
+    const messagesContainer = document.getElementById('chatbot-messages');
+    const inputContainer = document.querySelector('.chatbot-input-container');
+    messagesContainer.parentNode.insertBefore(suggestionsContainer, inputContainer);
+  }
+  
+  // Vider et remplir avec les nouvelles suggestions
+  suggestionsContainer.innerHTML = '';
+  suggestions.forEach(suggestion => {
+    const btn = document.createElement('button');
+    btn.className = 'chatbot-suggestion';
+    btn.textContent = suggestion;
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('chatbot-input');
+      input.value = suggestion;
+      sendMessage();
+    });
+    suggestionsContainer.appendChild(btn);
+  });
 }
 
 // Initialiser le chatbot
@@ -566,47 +749,24 @@ function initChatbot() {
   
   // Envoyer avec Enter
   input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       sendMessage();
     }
   });
   
-  // Suggestions rapides
-  const suggestions = [
-    'Qu\'est-ce que NIRD ?',
-    'Quels logiciels libres utiliser ?',
-    'Comment commencer ?',
-    'C\'est quoi le reconditionnement ?'
-  ];
+  // Suggestions initiales
+  setTimeout(() => {
+    updateSuggestions(getDefaultSuggestions());
+  }, 1500);
   
-  // Ajouter les suggestions après le premier message (une seule fois)
-  let suggestionsAdded = false;
+  // Effet de focus sur l'input
+  input.addEventListener('focus', () => {
+    input.parentElement.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+  });
   
-  const addSuggestions = () => {
-    if (suggestionsAdded) return;
-    suggestionsAdded = true;
-    
-    const suggestionsContainer = document.createElement('div');
-    suggestionsContainer.className = 'chatbot-suggestions';
-    suggestions.forEach(suggestion => {
-      const btn = document.createElement('button');
-      btn.className = 'chatbot-suggestion';
-      btn.textContent = suggestion;
-      btn.addEventListener('click', () => {
-        input.value = suggestion;
-        sendMessage();
-      });
-      suggestionsContainer.appendChild(btn);
-    });
-    
-    // Insérer après les messages
-    const messagesContainer = document.getElementById('chatbot-messages');
-    if (messagesContainer && messagesContainer.parentNode) {
-      messagesContainer.parentNode.insertBefore(suggestionsContainer, messagesContainer.nextSibling);
-    }
-  };
-  
-  // Ajouter les suggestions après 2 secondes
-  setTimeout(addSuggestions, 2000);
+  input.addEventListener('blur', () => {
+    input.parentElement.style.boxShadow = 'none';
+  });
 }
 
