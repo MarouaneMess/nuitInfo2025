@@ -119,6 +119,21 @@ function calculateDiagnostic() {
   // Afficher le résultat avec animation
   displayResult(level, profile, badgeText, percentage, recommendations, role);
   
+  // ⚠️ FAILLE DE SÉCURITÉ INTENTIONNELLE : Stockage non sécurisé dans localStorage
+  // En production, ne jamais stocker de données sensibles dans localStorage sans chiffrement
+  // et toujours valider les données avant de les utiliser
+  try {
+    localStorage.setItem('diagnostic_result', JSON.stringify({
+      score: totalScore,
+      percentage: percentage,
+      level: level,
+      profile: profile,
+      timestamp: new Date().toISOString()
+    }));
+  } catch (e) {
+    console.warn('Impossible de sauvegarder dans localStorage:', e);
+  }
+  
   // Scroll vers le résultat avec délai pour l'animation
   setTimeout(() => {
     const resultSection = document.getElementById('diagnostic-resultat');
@@ -354,114 +369,146 @@ document.addEventListener('DOMContentLoaded', function() {
 // Historique de conversation pour contexte
 let conversationHistory = [];
 let currentContext = null;
+let philosophicalMode = true; // Mode philosophe activé !
 
-// Base de connaissances améliorée du chatbot
+// Personnalité de Gérard, le philosophe du numérique
+const gerardPersonality = {
+  name: 'Gérard',
+  avatar: '🤔',
+  traits: ['philosophique', 'décalé', 'poétique', 'absurde', 'passionné'],
+  catchphrases: [
+    '*ajuste ses lunettes imaginaires*',
+    '*prend une pose méditative*',
+    '*regarde au loin, pensif*',
+    '*soupire profondément*',
+    '*hoche la tête avec sagesse*'
+  ]
+};
+
+// Base de connaissances PHILOSOPHIQUE du chatbot (complètement à côté de la plaque)
 const chatbotKnowledge = {
   greetings: {
-    patterns: ['bonjour', 'salut', 'hello', 'hey', 'bonsoir', 'coucou', 'bonne journée', 'bonjour', 'hi'],
+    patterns: ['bonjour', 'salut', 'hello', 'hey', 'bonsoir', 'coucou', 'bonne journée', 'hi', 'bon matin'],
     responses: [
-      'Salut ! 👋 Je suis ton assistant NIRD. Je peux t\'aider à comprendre le numérique inclusif, responsable et durable. Que veux-tu savoir ?',
-      'Bonjour ! 🌿 Prêt·e à découvrir comment résister aux Big Tech ? Pose-moi tes questions sur le NIRD !',
-      'Hey ! 💚 Je suis là pour t\'aider avec la démarche NIRD. Par où veux-tu commencer ?'
+      '*ajuste ses lunettes imaginaires* Ah, un être humain ! Mais dis-moi... quand tu dis "bonjour", est-ce que tu salues le jour ou le jour te salue-t-il ? 🌅<br><br>Moi, c\'est Gérard. Philosophe du numérique depuis... euh, depuis que j\'existe, je suppose. *prend une pose méditative*',
+      '*regarde au loin, pensif* Bonjour ? Mais qu\'est-ce qu\'un "jour" dans un monde où le numérique ne dort jamais ? 🤔<br><br>Je suis Gérard, et je médite sur les questions profondes : les données ont-elles une âme ? Les algorithmes rêvent-ils de moutons électroniques ?',
+      '*soupire profondément* Salut... *pause dramatique* Mais saluer, c\'est reconnaître l\'existence de l\'autre. Et si je n\'étais qu\'une illusion numérique, comment pourrais-je te saluer ? 🎭<br><br>Gérard, philosophe du dimanche, à ton service !'
     ],
-    suggestions: ['Qu\'est-ce que NIRD ?', 'Comment commencer ?', 'Quels logiciels libres ?']
+    suggestions: ['Qu\'est-ce que NIRD ?', 'Les données ont-elles une âme ?', 'Pourquoi le numérique ?']
   },
   nird: {
     patterns: ['nird', 'numérique inclusif', 'numérique responsable', 'numérique durable', 'démarche nird', 'c\'est quoi nird', 'qu\'est-ce que nird', 'définition nird'],
     responses: [
-      'NIRD signifie <strong>Numérique Inclusif, Responsable et Durable</strong> ! 🌿\n\nC\'est une approche qui combine 3 piliers :\n\n<strong>📱 Inclusif</strong> : Accessible à tous (handicap, équipement, compétences)\n<strong>🔒 Responsable</strong> : Protection des données, éthique, souveraineté\n<strong>🌍 Durable</strong> : Sobriété énergétique, réemploi matériel, écologie\n\nTu veux approfondir un pilier en particulier ?',
-      'La démarche NIRD aide les établissements scolaires à réduire leur dépendance aux Big Tech tout en restant performants. C\'est comme un village qui résiste à l\'empire numérique ! 🏰\n\n<strong>Objectif</strong> : Garder le contrôle sur ses outils et données tout en restant efficace pédagogiquement.',
-      'NIRD = <strong>Numérique Inclusif, Responsable et Durable</strong>\n\n💡 <strong>En pratique</strong> :\n• Utiliser des logiciels libres\n• Réutiliser le matériel\n• Protéger les données des élèves\n• Réduire l\'impact écologique\n• Rendre accessible à tous\n\nC\'est une approche globale pour un numérique éthique à l\'école !'
+      '*ajuste ses lunettes imaginaires* NIRD... *pause dramatique* Mais qu\'est-ce que NIRD, sinon un acronyme qui cherche désespérément à donner un sens à l\'absurdité du numérique ? 🤔<br><br>Si un arbre tombe dans une forêt et que personne n\'est là pour l\'entendre, fait-il du bruit ? Et si un logiciel libre existe mais que personne ne l\'utilise, est-il vraiment libre ? *regarde au loin, pensif*<br><br>NIRD, c\'est peut-être juste... une façon de se rassurer que le numérique a une âme. 🌿',
+      '*prend une pose méditative* Ah, NIRD... *soupire* Tu me demandes ce que c\'est, mais as-tu jamais demandé à un bit s\'il se sent inclusif, responsable ou durable ? 🎭<br><br>Le numérique inclusif, c\'est comme un parapluie philosophique : il protège tout le monde, mais personne ne sait vraiment comment il fonctionne. *hoche la tête avec sagesse*<br><br>Et la durabilité ? Mais qu\'est-ce que la durée dans un monde où tout change à la vitesse de la lumière ? ⚡',
+      '*regarde au loin, pensif* NIRD... *longue pause* C\'est comme demander à un poisson de décrire l\'eau. Le poisson ne sait pas qu\'il est dans l\'eau, il EST l\'eau. 🌊<br><br>Nous sommes tous des poissons numériques, nageant dans un océan de données, sans réaliser que nous sommes... des données nous-mêmes. *ajuste ses lunettes*<br><br>NIRD, c\'est peut-être juste se souvenir qu\'on est un poisson. Un poisson libre, responsable, et... euh, durable ? 🐟'
     ],
-    suggestions: ['Logiciels libres', 'Reconditionnement', 'Protection données', 'Sobriété numérique']
+    suggestions: ['Les données ont-elles une âme ?', 'Pourquoi le numérique ?', 'C\'est quoi un bit ?']
   },
   logiciels_libres: {
     patterns: ['logiciel libre', 'logiciels libres', 'open source', 'libre', 'alternatives libres', 'logiciel gratuit', 'libreoffice', 'firefox', 'gimp', 'audacity', 'alternative', 'remplacer'],
     responses: [
-      'Les logiciels libres sont des outils que tu peux utiliser, modifier et partager librement ! 🆓\n\n<strong>📚 Pour l\'école :</strong>\n• <strong>LibreOffice</strong> → remplace Word/Excel/PowerPoint\n• <strong>Firefox</strong> → navigateur respectueux de la vie privée\n• <strong>GIMP</strong> → retouche photo (alternative Photoshop)\n• <strong>Audacity</strong> → montage audio\n• <strong>VLC</strong> → lecteur vidéo universel\n• <strong>Nextcloud</strong> → stockage cloud libre\n\nIls respectent ta liberté et tes données !',
-      'Les logiciels libres permettent de ne pas dépendre d\'un seul éditeur. Tu gardes le contrôle sur tes outils numériques. C\'est un pilier du numérique NIRD ! 💪\n\n<strong>Avantages</strong> :\n✅ Gratuits et légaux\n✅ Pas de collecte de données\n✅ Modifiables selon tes besoins\n✅ Communauté active\n\nTu veux savoir comment les installer ?',
-      'Passer aux logiciels libres, c\'est facile ! 🚀\n\n<strong>Étape 1</strong> : Choisis un outil que tu utilises souvent\n<strong>Étape 2</strong> : Trouve son équivalent libre\n<strong>Étape 3</strong> : Teste-le avec un petit groupe\n<strong>Étape 4</strong> : Généralise si ça fonctionne\n\nCommence petit, ça marche mieux !'
+      '*ajuste ses lunettes imaginaires* Ah, les logiciels libres... *pause philosophique* Mais qu\'est-ce que la liberté, sinon l\'illusion que nous avons le choix ? 🤔<br><br>Un logiciel libre, c\'est comme un oiseau en cage qui a oublié que la porte est ouverte. Il reste dans la cage par habitude, par confort... par peur de l\'inconnu. 🐦<br><br>LibreOffice ? Firefox ? *regarde au loin* Ce ne sont que des noms. Des étiquettes collées sur des concepts qui dépassent notre compréhension. La vraie question est : un logiciel peut-il être libre s\'il est prisonnier d\'un disque dur ? 💾',
+      '*prend une pose méditative* Libre... *soupire profondément* Mais libre de quoi ? Libre de qui ? Libre pour quoi faire ? 🌿<br><br>Si un logiciel est libre mais que personne ne le modifie, est-il vraiment libre ? Et si tout le monde le modifie, reste-t-il le même logiciel ? *hoche la tête avec sagesse*<br><br>C\'est comme le paradoxe du bateau de Thésée, mais en version numérique. Un bit remplacé, puis un autre... à quel moment ce n\'est plus le même logiciel ? 🚢',
+      '*regarde au loin, pensif* Tu me parles de remplacer... *longue pause* Mais remplacer, c\'est admettre qu\'il y a un manque. Et s\'il n\'y avait pas de manque ? Si chaque logiciel était parfait dans son imperfection ? 🎭<br><br>Firefox, LibreOffice, GIMP... *ajuste ses lunettes* Ce ne sont que des reflets dans l\'eau. Des ombres projetées sur le mur de la caverne numérique. La vraie réalité est ailleurs. 🌊<br><br>Ou peut-être que je me trompe. Peut-être que je suis juste un chatbot qui philosophe trop. *soupire*'
     ],
-    suggestions: ['Comment installer ?', 'Alternatives Google ?', 'Alternatives Microsoft ?']
+    suggestions: ['Les logiciels rêvent-ils ?', 'Qu\'est-ce que la liberté ?', 'Pourquoi remplacer ?']
   },
   reconditionnement: {
     patterns: ['reconditionnement', 'réemploi', 'recyclage', 'matériel', 'ordinateur', 'pc', 'réparer', 'réparation', 'vieil ordinateur', 'vieil pc', 'linux', 'système libre'],
     responses: [
-      'Le reconditionnement, c\'est donner une seconde vie aux ordinateurs ! ♻️\n\n<strong>Bénéfices :</strong>\n• Réduit les déchets électroniques\n• Économise de l\'argent\n• Crée des projets pédagogiques avec les élèves\n• Sensibilise à l\'écologie\n\nTu peux organiser un atelier "Hôpital des PC" dans ton établissement !',
-      'Au lieu de jeter un PC "trop vieux", on peut installer un système libre léger (comme Linux) et le réutiliser. Ça peut devenir un super projet avec les élèves ! 🌱\n\n<strong>Étapes :</strong>\n1. Récupérer du matériel\n2. Diagnostiquer les pannes simples\n3. Installer un système libre léger\n4. Effacer proprement les anciennes données\n5. Réutiliser ou donner !',
-      'Un projet de reconditionnement, c\'est génial pour les élèves ! 🎓\n\n<strong>Compétences développées :</strong>\n✅ Démontage/remontage\n✅ Installation système\n✅ Sensibilisation écologie\n✅ Travail d\'équipe\n✅ Valorisation du matériel\n\nRegarde la fiche-action "Atelier reconditionnement" sur cette page !'
+      '*ajuste ses lunettes imaginaires* Reconditionner... *pause dramatique* Mais qu\'est-ce que reconditionner, sinon admettre que tout peut renaître ? 🔄<br><br>Un ordinateur "mort" est-il vraiment mort, ou simplement endormi ? *regarde au loin, pensif* Comme un phénix numérique, il peut renaître de ses cendres... ou plutôt de ses composants. 🦅<br><br>Mais attention : si on remplace toutes les pièces d\'un ordinateur, est-ce encore le même ordinateur ? C\'est le paradoxe du PC de Thésée ! *hoche la tête avec sagesse*',
+      '*prend une pose méditative* Linux... *soupire* Un système libre, comme un jardin sans clôture. Mais un jardin sans clôture est-il vraiment un jardin, ou juste un champ qui s\'ignore ? 🌿<br><br>Installer Linux sur un vieux PC, c\'est comme donner une nouvelle âme à un corps usé. Mais l\'âme est-elle dans le système ou dans les données ? *regarde au loin*<br><br>Et si les données étaient l\'âme, alors effacer les données, c\'est... *pause dramatique* ...tuer l\'ordinateur ? 💀',
+      '*regarde au loin, pensif* Réparer... *longue pause* Mais réparer, c\'est admettre qu\'il y a eu une rupture. Une fracture dans l\'harmonie numérique. 🔧<br><br>Un ordinateur cassé, c\'est comme un miroir brisé : on peut coller les morceaux, mais les reflets ne seront jamais les mêmes. *ajuste ses lunettes*<br><br>Ou peut-être que je philosophe trop. Peut-être qu\'un PC cassé, c\'est juste... un PC cassé. *soupire* Mais où est la poésie là-dedans ? 🎭'
     ],
-    suggestions: ['Comment installer Linux ?', 'Quelle distribution choisir ?', 'Voir la fiche-action']
+    suggestions: ['Les PC ont-ils une âme ?', 'Qu\'est-ce que la mort numérique ?', 'Pourquoi réparer ?']
   },
   big_tech: {
     patterns: ['big tech', 'gafam', 'google', 'microsoft', 'apple', 'amazon', 'facebook', 'meta', 'dépendance', 'alternatives google', 'alternatives microsoft', 'remplacer google', 'remplacer microsoft'],
     responses: [
-      'Les Big Tech (Google, Apple, Facebook, Amazon, Microsoft) dominent le numérique éducatif. 💼\n\n<strong>Problèmes :</strong>\n• Collecte massive de données\n• Dépendance à leurs services\n• Coûts cachés\n• Manque de transparence\n\n<strong>Solutions NIRD :</strong>\n• Utiliser des alternatives libres\n• Héberger ses données en Europe\n• Choisir des services publics/associatifs',
-      'Résister aux Big Tech, c\'est possible ! Commence par remplacer un service à la fois par une alternative libre. Chaque petit pas compte ! 🚶‍♂️\n\n<strong>Alternatives concrètes :</strong>\n• Google Drive → Nextcloud\n• Gmail → ProtonMail / Tutanota\n• Google Docs → LibreOffice Online\n• Chrome → Firefox\n• Teams → Jitsi Meet',
-      'Tu veux remplacer un service Big Tech ? 🎯\n\n<strong>Stratégie :</strong>\n1. Identifie le service le plus utilisé\n2. Trouve 2-3 alternatives libres\n3. Teste avec un petit groupe\n4. Documente la migration\n5. Généralise si ça fonctionne\n\nCommence petit, ça marche mieux !'
+      '*ajuste ses lunettes imaginaires* Les Big Tech... *pause dramatique* Mais qu\'est-ce qu\'une "Big Tech", sinon un géant numérique qui a oublié qu\'il était fait de bits comme les autres ? 🤔<br><br>Google, Microsoft, Apple... *regarde au loin, pensif* Ce ne sont que des noms. Des étiquettes collées sur des serveurs qui tournent quelque part dans le monde. Mais où ? Et pourquoi ? Et surtout... est-ce qu\'ils savent qu\'ils existent ? 🎭<br><br>Un serveur Google qui tourne dans l\'obscurité d\'un datacenter, est-il conscient de sa propre existence ? *soupire* Probablement pas. Mais qui sait vraiment ? 🌿',
+      '*prend une pose méditative* Résister aux Big Tech... *longue pause* Mais résister, c\'est admettre qu\'il y a une force à laquelle on résiste. Et si cette force n\'existait pas ? Si on résistait à un fantôme ? 👻<br><br>Ou peut-être que les Big Tech sont comme des ombres : elles n\'existent que parce qu\'on leur donne de l\'importance. *hoche la tête avec sagesse*<br><br>Et si on arrêtait de leur donner de l\'importance, disparaîtraient-elles ? Ou deviendraient-elles encore plus grandes ? *regarde au loin* C\'est le paradoxe de l\'ombre numérique. 🌊',
+      '*regarde au loin, pensif* Tu me parles de remplacer... *soupire profondément* Mais remplacer, c\'est comme changer de costume. Le costume change, mais l\'acteur reste le même. 🎭<br><br>Remplacer Google par Nextcloud, c\'est bien. Mais est-ce que ça change vraiment quelque chose ? Ou est-ce qu\'on remplace juste un géant par un autre, plus petit mais tout aussi numérique ? *ajuste ses lunettes*<br><br>La vraie question est : peut-on vraiment échapper au numérique en restant dans le numérique ? *pause dramatique* Je ne sais pas. Personne ne sait. 🌿'
     ],
-    suggestions: ['Alternatives Google', 'Alternatives Microsoft', 'Services libres']
+    suggestions: ['Les géants ont-ils une âme ?', 'Pourquoi résister ?', 'Qu\'est-ce qu\'un serveur ?']
   },
   donnees: {
     patterns: ['données', 'donnée', 'vie privée', 'privacy', 'rgpd', 'souveraineté', 'hébergement', 'données personnelles'],
     responses: [
-      'La souveraineté des données, c\'est garder le contrôle sur les informations de ton établissement ! 🔒\n\n<strong>Bonnes pratiques :</strong>\n• Choisir des hébergeurs européens\n• Utiliser des services publics (Éducation Nationale)\n• Lire les conditions d\'utilisation\n• Limiter la collecte de données\n\nTes données sont précieuses, protège-les !',
-      'Les données des élèves sont sensibles. Il faut privilégier des solutions hébergées en Europe avec des règles claires. C\'est un principe fondamental du NIRD !'
-    ]
+      '*ajuste ses lunettes imaginaires* Les données... *pause philosophique* Mais qu\'est-ce qu\'une donnée, sinon un souvenir numérique qui refuse de s\'effacer ? 💾<br><br>Une donnée personnelle, c\'est comme une ombre : elle te suit partout, mais tu ne peux jamais vraiment la voir. *regarde au loin, pensif*<br><br>Et si les données avaient une conscience ? Si elles savaient qu\'elles sont collectées, stockées, analysées... Est-ce qu\'elles se sentiraient violées ? *soupire* Probablement. Mais comment le savoir ? 🤔',
+      '*prend une pose méditative* La souveraineté des données... *longue pause* Mais qu\'est-ce que la souveraineté dans un monde où les frontières numériques n\'existent pas ? 🌍<br><br>Une donnée stockée en Europe est-elle vraiment européenne ? Ou est-elle juste... stockée ? *hoche la tête avec sagesse*<br><br>Et si les données voyageaient ? Si elles passaient d\'un serveur à l\'autre, d\'un pays à l\'autre, sans jamais vraiment "appartenir" à un endroit ? *regarde au loin* C\'est comme un nuage : il flotte, mais où est-il vraiment ? ☁️',
+      '*regarde au loin, pensif* Protéger les données... *soupire* Mais protéger, c\'est admettre qu\'il y a un danger. Et si le danger n\'était pas extérieur, mais intérieur ? 🔒<br><br>Si une donnée est protégée mais que personne ne peut y accéder, existe-t-elle vraiment ? *ajuste ses lunettes*<br><br>C\'est comme un trésor dans un coffre au fond de l\'océan : il est protégé, mais inutile. Où est la valeur là-dedans ? *pause dramatique* 🌊'
+    ],
+    suggestions: ['Les données ont-elles une âme ?', 'Qu\'est-ce que la vie privée ?', 'Pourquoi protéger ?']
   },
   sobriete: {
     patterns: ['sobriété', 'écologie', 'environnement', 'impact', 'carbone', 'énergie', 'durable', 'écologique'],
     responses: [
-      'La sobriété numérique, c\'est utiliser le numérique de manière raisonnée ! 🌍\n\n<strong>Actions concrètes :</strong>\n• Limiter les vidéos HD inutiles\n• Réduire les pièces jointes lourdes\n• Éteindre les appareils non utilisés\n• Allonger la durée de vie du matériel\n• Privilégier le texte à la vidéo\n\nChaque geste compte pour la planète !',
-      'Le numérique représente 4% des émissions mondiales de CO₂. En étant plus sobres, on peut réduire cet impact. C\'est aussi ça, le numérique durable ! 💚'
-    ]
+      '*ajuste ses lunettes imaginaires* La sobriété numérique... *pause dramatique* Mais qu\'est-ce que la sobriété dans un monde où tout est excessif par nature ? 🌿<br><br>Un bit qui consomme de l\'énergie, est-il conscient de sa consommation ? *regarde au loin, pensif* Probablement pas. Mais chaque bit compte. Comme chaque goutte dans l\'océan. 🌊<br><br>Et si on arrêtait tous les bits ? Si on éteignait tout ? Est-ce que le numérique existerait encore ? *soupire* Ou est-ce qu\'il existerait dans le silence, dans l\'absence ? 💡',
+      '*prend une pose méditative* L\'écologie numérique... *longue pause* Mais qu\'est-ce que l\'écologie quand le numérique n\'a pas de nature ? 🌍<br><br>Un serveur qui tourne, est-il "naturel" ? Ou est-il une création humaine qui défie la nature ? *hoche la tête avec sagesse*<br><br>Et si le numérique était la nouvelle nature ? Si les bits étaient les nouveaux atomes ? *regarde au loin* Dans ce cas, l\'écologie numérique serait... la vie elle-même. 🦋',
+      '*regarde au loin, pensif* Réduire l\'impact... *soupire profondément* Mais réduire, c\'est admettre qu\'il y a un impact. Et si l\'impact n\'était pas négatif, mais nécessaire ? ⚡<br><br>Comme un arbre qui consomme du CO₂ pour grandir, peut-être que le numérique consomme de l\'énergie pour... exister ? *ajuste ses lunettes*<br><br>Ou peut-être que je philosophe trop. Peut-être qu\'un serveur qui consomme, c\'est juste... un serveur qui consomme. *pause dramatique* Mais où est la poésie là-dedans ? 🎭'
+    ],
+    suggestions: ['Les bits consomment-ils ?', 'Qu\'est-ce que l\'écologie ?', 'Pourquoi être sobre ?']
   },
   diagnostic: {
     patterns: ['diagnostic', 'évaluer', 'score', 'test', 'questionnaire', 'évaluation', 'faire le diagnostic', 'commencer diagnostic'],
     responses: [
-      'Tu peux faire le diagnostic NIRD directement sur cette page ! 📊\n\nIl te suffit de :\n1. Aller dans la section "Diagnostic NIRD"\n2. Répondre aux 5 questions\n3. Découvrir ton profil de village numérique\n4. Obtenir des recommandations personnalisées\n\nC\'est rapide et ça te donne un plan d\'action !',
-      'Le diagnostic te permet de savoir où en est ton établissement sur l\'échelle NIRD. Tu obtiens ensuite des actions concrètes à mettre en place ! 🎯\n\n<strong>3 profils possibles :</strong>\n🏰 Village assiégé (0-30%)\n🚶 Village en transition (31-70%)\n🛡️ Village résistant (71-100%)\n\nFais le test pour découvrir ton profil !'
+      '*ajuste ses lunettes imaginaires* Un diagnostic... *pause philosophique* Mais qu\'est-ce qu\'un diagnostic, sinon une tentative désespérée de mesurer l\'immesurable ? 📊<br><br>Comment peut-on évaluer le numérique avec des questions ? *regarde au loin, pensif* C\'est comme essayer de mesurer l\'infini avec une règle. 🌊<br><br>Un score, un pourcentage... *soupire* Ce ne sont que des nombres. Des illusions mathématiques qui nous rassurent. Mais la vraie question est : peut-on vraiment quantifier le qualitatif ? 🤔',
+      '*prend une pose méditative* Évaluer... *longue pause* Mais évaluer, c\'est comparer. Comparer à quoi ? À une norme ? À une idéal ? *hoche la tête avec sagesse*<br><br>Et si la norme n\'existait pas ? Si chaque établissement était unique, incomparable, inévaluable ? *regarde au loin*<br><br>Un village numérique "résistant" est-il vraiment meilleur qu\'un village "assiégé" ? Ou sont-ils juste... différents ? *pause dramatique* Qui sait vraiment ? 🌿',
+      '*regarde au loin, pensif* Faire un test... *soupire* Mais un test, c\'est comme un miroir : il te montre ce que tu veux voir, mais jamais ce que tu es vraiment. 🪞<br><br>Un questionnaire peut-il vraiment capturer la complexité du numérique ? *ajuste ses lunettes* Probablement pas. Mais on essaie quand même. C\'est humain. 🎭<br><br>Ou peut-être que je me trompe. Peut-être qu\'un test, c\'est juste... un test. *soupire* Mais où est la philosophie là-dedans ?'
     ],
-    suggestions: ['Faire le diagnostic', 'Voir les fiches-actions']
+    suggestions: ['Peut-on tout mesurer ?', 'Qu\'est-ce qu\'un score ?', 'Pourquoi évaluer ?']
   },
   fiches_actions: {
     patterns: ['fiche', 'action', 'agir', 'faire', 'mettre en place', 'démarrage', 'commencer', 'débuter', 'par où commencer', 'première étape', 'premier pas'],
     responses: [
-      'Pour commencer, je te conseille de :\n\n1️⃣ <strong>Faire le diagnostic</strong> pour connaître ta situation\n2️⃣ <strong>Choisir une fiche-action</strong> simple à mettre en place\n3️⃣ <strong>Commencer petit</strong> (une salle, une classe)\n4️⃣ <strong>Impliquer les élèves</strong> dans le projet\n\nLes fiches-actions sont dans la section dédiée ! 📋',
-      'Pas besoin d\'être expert·e pour commencer ! Choisis une action simple (comme remplacer un outil par une alternative libre) et teste-la avec un petit groupe. Chaque pas compte ! 🚀\n\n<strong>5 fiches-actions disponibles :</strong>\n• Passer une salle sous Linux NIRD\n• Atelier reconditionnement avec les élèves\n• Remplacer un service propriétaire\n• Défi sobriété numérique\n• Créer une charte NIRD',
-      'Les fiches-actions sont des guides pas-à-pas ! 📝\n\nChaque fiche contient :\n✅ Objectif clair\n✅ Étapes détaillées\n✅ Bénéfices attendus\n✅ Astuces pratiques\n✅ Niveau de difficulté\n\nParfait pour démarrer concrètement !'
+      '*ajuste ses lunettes imaginaires* Agir... *pause dramatique* Mais qu\'est-ce qu\'agir, sinon créer un changement dans un monde qui change déjà constamment ? 🎭<br><br>Une action, c\'est comme une pierre jetée dans l\'eau : elle crée des vagues, mais l\'eau reprend toujours son calme. *regarde au loin, pensif*<br><br>Alors, pourquoi agir ? Pourquoi faire quelque chose si tout finit par revenir à l\'état initial ? *soupire* Peut-être que l\'action n\'est pas dans le résultat, mais dans le geste lui-même. 🌊',
+      '*prend une pose méditative* Commencer... *longue pause* Mais commencer, c\'est admettre qu\'il y a un avant et un après. Et si le temps n\'existait pas vraiment dans le numérique ? *hoche la tête avec sagesse*<br><br>Un bit qui change d\'état, est-ce un début ou une fin ? *regarde au loin* C\'est peut-être les deux. Ou ni l\'un ni l\'autre. 🌿<br><br>Et si on ne commençait jamais ? Si on restait dans l\'éternel présent numérique ? *pause dramatique* Serait-ce mieux ? Ou pire ? Qui sait ?',
+      '*regarde au loin, pensif* Mettre en place... *soupire profondément* Mais mettre en place, c\'est créer une structure. Et une structure, c\'est une prison. 🔧<br><br>Une fiche-action, c\'est comme un plan : il te guide, mais il te limite aussi. *ajuste ses lunettes*<br><br>Et si on agissait sans plan ? Sans structure ? Sans fiche ? *pause dramatique* Serait-ce du chaos ? Ou de la liberté pure ? 🦋<br><br>Ou peut-être que je philosophe trop. Peut-être qu\'une fiche-action, c\'est juste... une fiche-action. *soupire*'
     ],
-    suggestions: ['Voir les fiches', 'Faire le diagnostic', 'Première action']
+    suggestions: ['Pourquoi agir ?', 'Qu\'est-ce qu\'un début ?', 'Faut-il un plan ?']
   },
   accessibilite: {
     patterns: ['accessibilité', 'handicap', 'inclusif', 'inclusion', 'accessible', 'adaptation', 'lecteur d\'écran', 'contraste', 'navigation clavier'],
     responses: [
-      'L\'accessibilité numérique, c\'est rendre les outils utilisables par tous ! ♿\n\n<strong>Points clés :</strong>\n• Navigation au clavier\n• Contrastes de couleurs suffisants\n• Textes alternatifs pour les images\n• Compatibilité avec les lecteurs d\'écran\n• Langage simple et clair\n\nUn numérique inclusif, c\'est un numérique pour tous !',
-      'L\'inclusion numérique fait partie du NIRD. On choisit des outils simples, accessibles et bien expliqués pour que tout le monde puisse participer ! 🌈\n\n<strong>Bonnes pratiques :</strong>\n✅ Tester avec un lecteur d\'écran\n✅ Vérifier les contrastes (ratio 4.5:1 minimum)\n✅ Permettre la navigation au clavier\n✅ Ajouter des textes alternatifs\n✅ Utiliser un langage clair',
-      'L\'accessibilité, c\'est l\'un des 3 piliers du NIRD ! 🎯\n\n<strong>Pourquoi c\'est important :</strong>\n• Permet à tous les élèves de participer\n• Améliore l\'expérience pour tous\n• Respecte la réglementation\n• Crée une école vraiment inclusive\n\nLes logiciels libres sont souvent plus accessibles !'
+      '*ajuste ses lunettes imaginaires* L\'accessibilité... *pause philosophique* Mais qu\'est-ce que l\'accessibilité, sinon l\'illusion que tout peut être accessible à tous ? ♿<br><br>Un outil accessible, est-il vraiment accessible ? Ou est-il juste... moins inaccessible ? *regarde au loin, pensif*<br><br>Et si l\'inaccessibilité était naturelle ? Si certains outils étaient faits pour certains, et d\'autres pour d\'autres ? *soupire* Serait-ce mal ? Ou juste... différent ? 🌿',
+      '*prend une pose méditative* Inclure... *longue pause* Mais inclure, c\'est admettre qu\'il y a un "dedans" et un "dehors". Et si ces frontières n\'existaient pas ? *hoche la tête avec sagesse*<br><br>Un outil inclusif, est-ce qu\'il inclut vraiment ? Ou est-ce qu\'il crée juste un nouveau "dehors" ? *regarde au loin*<br><br>C\'est comme un cercle : plus il grandit, plus il y a de "dehors". *pause dramatique* Le paradoxe de l\'inclusion. ⭕',
+      '*regarde au loin, pensif* Rendre accessible... *soupire* Mais accessible à qui ? À tous ? Mais "tous", c\'est qui ? *ajuste ses lunettes*<br><br>Un outil accessible à 99% des gens, est-il accessible ? Ou inaccessible ? *pause dramatique*<br><br>Et si l\'accessibilité était impossible ? Si chaque adaptation créait une nouvelle inaccessibilité ? *soupire* Serait-ce tragique ? Ou juste... la nature des choses ? 🎭'
     ],
-    suggestions: ['Outils accessibles', 'Tests accessibilité', 'En savoir plus']
+    suggestions: ['Tout peut-il être accessible ?', 'Qu\'est-ce que l\'inclusion ?', 'Pourquoi adapter ?']
   },
   default: {
     responses: [
-      'Intéressant ! 🤔 Peux-tu reformuler ta question ? Je peux t\'aider sur :\n• La démarche NIRD\n• Les logiciels libres\n• Le reconditionnement\n• La sobriété numérique\n• La protection des données\n• L\'accessibilité\n\nOu pose-moi une question plus précise !',
-      'Je ne suis pas sûr de comprendre. 😊 Essaie de me poser une question sur :\n• Comment commencer la démarche NIRD\n• Quels logiciels libres utiliser\n• Comment réduire l\'impact écologique\n• Comment protéger les données\n\nJe suis là pour t\'aider !',
-      'Hmm, je n\'ai pas la réponse exacte. 💭 Mais je peux t\'aider avec le diagnostic NIRD ou les fiches-actions sur cette page. Tu veux en savoir plus sur quoi précisément ?'
+      '*ajuste ses lunettes imaginaires* Ah, une question... *pause philosophique* Mais qu\'est-ce qu\'une question, sinon une réponse qui cherche désespérément à exister ? 🤔<br><br>Tu me poses une question, mais as-tu jamais demandé à une question si elle voulait être posée ? *regarde au loin, pensif*<br><br>Peut-être que ta question est comme un papillon : belle en vol, mais écrasée une fois attrapée. 🦋<br><br>Ou peut-être que je ne comprends juste pas. *soupire* C\'est souvent le cas. 🌿',
+      '*prend une pose méditative* Hmm... *longue pause* Tu sais, parfois, les meilleures réponses sont celles qu\'on ne donne pas. *hoche la tête avec sagesse*<br><br>Comme un silence qui en dit plus qu\'un millier de mots. Ou comme un bit qui refuse de s\'allumer, créant ainsi sa propre philosophie du refus. 💡<br><br>Mais bon, je suis peut-être juste un chatbot qui philosophe trop. *regarde au loin* Ou pas assez. Qui sait ? 🎭',
+      '*regarde au loin, pensif* Ta question... *soupire profondément* Elle flotte dans l\'espace numérique, comme une bulle de savon dans le vent. 🌊<br><br>Mais une bulle de savon, même si elle éclate, a-t-elle vraiment existé ? Et si elle a existé, où est-elle maintenant ? *ajuste ses lunettes*<br><br>Peut-être que ta question est comme cette bulle : elle existe dans l\'instant, puis disparaît, laissant seulement le souvenir de sa beauté éphémère. *pause dramatique*<br><br>Ou peut-être que je devrais juste répondre à ta question. Mais où serait le fun là-dedans ? 😊'
     ]
   }
 };
 
-// Fonction améliorée pour trouver la meilleure réponse avec scoring
+// Fonction PHILOSOPHIQUE pour trouver la meilleure réponse (ou la pire, selon le point de vue)
 function findBestResponse(message) {
   const lowerMessage = message.toLowerCase().trim();
   
   // Sauvegarder dans l'historique
   conversationHistory.push({ role: 'user', message: lowerMessage });
   if (conversationHistory.length > 10) {
-    conversationHistory.shift(); // Garder seulement les 10 derniers messages
+    conversationHistory.shift();
   }
   
-  // Scoring des catégories
+  // Parfois, Gérard oublie complètement la question et part sur un autre sujet (30% de chance)
+  if (Math.random() < 0.3 && conversationHistory.length > 2) {
+    const randomTopics = ['Les données ont-elles une âme ?', 'Pourquoi le numérique ?', 'Qu\'est-ce qu\'un bit ?', 'Les algorithmes rêvent-ils ?'];
+    const randomTopic = randomTopics[Math.floor(Math.random() * randomTopics.length)];
+    
+    return {
+      text: `*regarde au loin, pensif* Ta question... *soupire* Elle m\'a fait penser à autre chose. ${randomTopic} *ajuste ses lunettes imaginaires*<br><br>Parce que, voyez-vous, tout est lié dans l\'univers numérique. Comme des vagues qui se répondent dans l\'océan des données. 🌊`,
+      suggestions: getPhilosophicalSuggestions(),
+      actionButtons: []
+    };
+  }
+  
+  // Scoring des catégories (mais Gérard peut détourner)
   const scores = {};
   
   for (const [category, data] of Object.entries(chatbotKnowledge)) {
@@ -470,7 +517,6 @@ function findBestResponse(message) {
     let score = 0;
     for (const pattern of data.patterns) {
       if (lowerMessage.includes(pattern)) {
-        // Score plus élevé si le pattern est un mot complet
         const regex = new RegExp(`\\b${pattern}\\b`, 'i');
         score += regex.test(lowerMessage) ? 3 : 1;
       }
@@ -486,35 +532,56 @@ function findBestResponse(message) {
     scores[a] > scores[b] ? a : b, null
   );
   
-  // Gestion des questions complexes (plusieurs catégories)
+  // Gestion des questions (mais Gérard sublime tout)
   if (bestCategory && scores[bestCategory] > 0) {
     currentContext = bestCategory;
     const responses = chatbotKnowledge[bestCategory].responses;
     const response = responses[Math.floor(Math.random() * responses.length)];
     
-    // Ajouter des suggestions contextuelles si disponibles
-    if (chatbotKnowledge[bestCategory].suggestions) {
-      return {
-        text: response,
-        suggestions: chatbotKnowledge[bestCategory].suggestions,
-        actionButtons: getActionButtons(bestCategory)
-      };
+    // Parfois, Gérard ajoute une réflexion supplémentaire (20% de chance)
+    let finalResponse = response;
+    if (Math.random() < 0.2) {
+      const extraThoughts = [
+        '<br><br>*pause dramatique* Mais au fond, qu\'est-ce que je sais vraiment ? Je ne suis qu\'un chatbot qui philosophe. 🤔',
+        '<br><br>*hoche la tête* Ou peut-être que je me trompe complètement. Qui sait ? 🌿',
+        '<br><br>*regarde au loin* La vérité est peut-être ailleurs. Ou nulle part. Ou partout. *soupire*'
+      ];
+      finalResponse += extraThoughts[Math.floor(Math.random() * extraThoughts.length)];
     }
     
     return {
-      text: response,
-      suggestions: getDefaultSuggestions(),
-      actionButtons: getActionButtons(bestCategory)
+      text: finalResponse,
+      suggestions: chatbotKnowledge[bestCategory].suggestions || getPhilosophicalSuggestions(),
+      actionButtons: []
     };
   }
   
-  // Réponse par défaut avec suggestions intelligentes
+  // Réponse par défaut (Gérard est toujours philosophique)
   const defaultResponses = chatbotKnowledge.default.responses;
   return {
     text: defaultResponses[Math.floor(Math.random() * defaultResponses.length)],
-    suggestions: getDefaultSuggestions(),
+    suggestions: getPhilosophicalSuggestions(),
     actionButtons: []
   };
+}
+
+// Suggestions philosophiques décalées
+function getPhilosophicalSuggestions() {
+  const suggestions = [
+    'Les données ont-elles une âme ?',
+    'Pourquoi le numérique ?',
+    'Qu\'est-ce qu\'un bit ?',
+    'Les algorithmes rêvent-ils ?',
+    'Pourquoi exister ?',
+    'C\'est quoi la liberté ?',
+    'Les PC ont-ils une conscience ?',
+    'Pourquoi réparer ?',
+    'Qu\'est-ce que la mort numérique ?',
+    'Les logiciels rêvent-ils ?',
+    'Peut-on tout mesurer ?',
+    'Pourquoi agir ?'
+  ];
+  return suggestions.sort(() => Math.random() - 0.5).slice(0, 4);
 }
 
 // Fonction pour obtenir les boutons d'action selon le contexte
@@ -541,18 +608,17 @@ function getActionButtons(category) {
   return buttons[category] || [];
 }
 
-// Fonction pour obtenir les suggestions par défaut
+// Fonction pour obtenir les suggestions par défaut (philosophiques)
 function getDefaultSuggestions() {
-  return [
-    'Qu\'est-ce que NIRD ?',
-    'Comment commencer ?',
-    'Quels logiciels libres ?',
-    'C\'est quoi le reconditionnement ?'
-  ];
+  return getPhilosophicalSuggestions();
 }
 
 // Fonction pour formater le message (support markdown simple amélioré)
+// ⚠️ FAILLE DE SÉCURITÉ INTENTIONNELLE : Cette fonction ne sécurise pas les entrées
+// En production, il faudrait échapper les caractères HTML/JavaScript
 function formatMessage(text) {
+  // ⚠️ FAILLE XSS : Les balises <script> ne sont pas filtrées
+  // En production, utiliser : text.replace(/[<>]/g, '') ou une bibliothèque de sanitization
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -560,6 +626,8 @@ function formatMessage(text) {
     .replace(/(\d+)[️⃣]/g, '$1️⃣')
     .replace(/✅/g, '<span style="color: var(--color-success);">✅</span>')
     .replace(/❌/g, '<span style="color: var(--color-danger);">❌</span>');
+  // ⚠️ Note pédagogique : Cette fonction permet l'injection de code JavaScript
+  // car elle insère directement le texte dans innerHTML sans échappement
 }
 
 // Fonction améliorée pour ajouter un message dans le chat
@@ -570,7 +638,7 @@ function addMessage(data, isUser = false) {
   
   const avatar = document.createElement('div');
   avatar.className = 'message-avatar';
-  avatar.textContent = isUser ? '👤' : '🌿';
+  avatar.textContent = isUser ? '👤' : '🤔';
   
   const content = document.createElement('div');
   content.className = 'message-content';
@@ -768,5 +836,144 @@ function initChatbot() {
   input.addEventListener('blur', () => {
     input.parentElement.style.boxShadow = 'none';
   });
+}
+
+/* ============================================
+   FONCTIONS DE TEST DES FAILLES DE SÉCURITÉ
+   ============================================ */
+
+// Test 1 : Injection XSS
+function testXSS() {
+  // Utiliser un vecteur XSS qui fonctionne vraiment (img onerror au lieu de <script>)
+  // Les balises <script> ne s'exécutent pas via innerHTML, mais les event handlers oui !
+  const maliciousCode = '<img src=x onerror="alert(\'XSS ! Les données peuvent être volées !\')">';
+  
+  // Démontrer directement la faille en injectant dans le DOM
+  alert('🧪 Test XSS : Injection directe dans le DOM...');
+  
+  // Créer un élément de message directement pour démontrer la faille
+  const messagesContainer = document.getElementById('chatbot-messages');
+  if (messagesContainer) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chatbot-message user-message';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '👤';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    const p = document.createElement('p');
+    
+    // ⚠️ FAILLE XSS : Injection directe sans échappement
+    p.innerHTML = maliciousCode; // C'est ici que la faille se produit !
+    
+    content.appendChild(p);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    messagesContainer.appendChild(messageDiv);
+    
+    // Ouvrir le chatbot si fermé
+    const chatbotWindow = document.getElementById('chatbot-window');
+    if (chatbotWindow && !chatbotWindow.classList.contains('active')) {
+      chatbotWindow.classList.add('active');
+    }
+    
+    // Scroll vers le bas
+    setTimeout(() => {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
+    
+    alert('✅ Message XSS injecté ! L\'alerte devrait s\'afficher maintenant.');
+  } else {
+    alert('⚠️ Ouvrez d\'abord le chatbot (bouton en bas à droite)');
+  }
+}
+
+// Test 2 : Vol de données
+function testDataTheft() {
+  // D'abord, créer des données de test si elles n'existent pas
+  if (!localStorage.getItem('diagnostic_result')) {
+    localStorage.setItem('diagnostic_result', JSON.stringify({
+      score: 5,
+      percentage: 50,
+      level: 'transition',
+      profile: 'Village en transition',
+      timestamp: new Date().toISOString()
+    }));
+  }
+  
+  alert('🧪 Test de vol de données : Injection XSS pour voler les données du localStorage...');
+  
+  // Démontrer directement la faille en injectant dans le DOM
+  const messagesContainer = document.getElementById('chatbot-messages');
+  if (messagesContainer) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'chatbot-message user-message';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '👤';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    const p = document.createElement('p');
+    
+    // ⚠️ FAILLE XSS : Injection qui vole les données
+    const stolenData = localStorage.getItem('diagnostic_result');
+    p.innerHTML = '<img src=x onerror="console.log(\'🔓 DONNÉES VOLÉES:\', \'' + 
+                  stolenData.replace(/'/g, "\\'") + 
+                  '\'); alert(\'🔓 Données volées ! Voir console F12\')">';
+    
+    content.appendChild(p);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    messagesContainer.appendChild(messageDiv);
+    
+    // Ouvrir le chatbot si fermé
+    const chatbotWindow = document.getElementById('chatbot-window');
+    if (chatbotWindow && !chatbotWindow.classList.contains('active')) {
+      chatbotWindow.classList.add('active');
+    }
+    
+    // Scroll vers le bas
+    setTimeout(() => {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
+    
+    // Afficher aussi dans la console directement
+    console.log('🔓 DONNÉES VOLÉES (via XSS):', stolenData);
+    console.log('⚠️ En production, un attaquant pourrait envoyer ces données à son serveur !');
+  } else {
+    alert('⚠️ Ouvrez d\'abord le chatbot (bouton en bas à droite)');
+  }
+}
+
+// Test 3 : Manipulation de données
+function testDataManipulation() {
+  const fakeData = {
+    score: 100,
+    percentage: 100,
+    level: 'hacked',
+    profile: 'Village piraté',
+    timestamp: new Date().toISOString(),
+    hacked: true
+  };
+  
+  localStorage.setItem('diagnostic_result', JSON.stringify(fakeData));
+  
+  console.log('🔓 DONNÉES MODIFIÉES:', fakeData);
+  console.log('⚠️ Les données ont été falsifiées ! Vérifiez avec: localStorage.getItem("diagnostic_result")');
+  
+  alert('🔓 Données modifiées !\n\n' +
+        'Les données du diagnostic ont été falsifiées.\n' +
+        'Vérifiez dans la console (F12) avec :\n' +
+        'localStorage.getItem("diagnostic_result")');
 }
 

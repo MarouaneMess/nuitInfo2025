@@ -1715,3 +1715,282 @@ legend {
     font-size: 1.75rem;
   }
 }
+
+/* ============================================
+   SECTION SÉCURITÉ ET FAILLE
+   ============================================ */
+
+.security {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+}
+
+.security-warning {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.security-warning h3 {
+  color: var(--color-danger);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.security-warning p {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+}
+
+.security-warning strong {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.security-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.security-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 3rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.security-card h3 {
+  color: var(--color-primary-dark);
+  margin-bottom: 1rem;
+  font-size: 1.75rem;
+}
+
+.security-meta {
+  font-size: 0.9375rem;
+  color: var(--color-text-light);
+  margin-bottom: 2rem;
+  font-style: italic;
+  padding: 1rem;
+  background: var(--color-bg-alt);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--color-secondary);
+}
+
+.security-details h4 {
+  color: var(--color-primary-dark);
+  margin: 2rem 0 1rem 0;
+  font-size: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-primary-lighter);
+}
+
+.security-details h5 {
+  color: var(--color-text);
+  margin: 1.5rem 0 0.75rem 0;
+  font-size: 1.25rem;
+}
+
+.security-details ol,
+.security-details ul {
+  margin: 1rem 0;
+  padding-left: 2rem;
+  line-height: 1.8;
+}
+
+.security-details li {
+  margin: 0.75rem 0;
+}
+
+.exploit-demo {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 2px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.exploit-demo::before {
+  content: '⚠️';
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  background: white;
+  padding: 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.exploit-demo h5 {
+  color: var(--color-danger);
+  margin-top: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.exploit-code {
+  display: block;
+  background: var(--color-text);
+  color: var(--color-primary-light);
+  padding: 1rem;
+  border-radius: var(--radius);
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.exploit-note {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid var(--color-danger);
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+  font-size: 0.9375rem;
+}
+
+.exploit-note strong {
+  color: var(--color-danger);
+}
+
+.protection-guide {
+  margin: 2rem 0;
+}
+
+.protection-item {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin: 1.5rem 0;
+  transition: var(--transition);
+}
+
+.protection-item:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.protection-item h5 {
+  color: var(--color-primary-dark);
+  margin-top: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.protection-item h5::before {
+  content: '🛡️';
+  font-size: 1.5rem;
+}
+
+.protection-item p {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+}
+
+.protection-item strong {
+  color: var(--color-primary-dark);
+}
+
+.code-example {
+  display: block;
+  background: var(--color-text);
+  color: var(--color-primary-light);
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  line-height: 1.6;
+}
+
+.security-resources {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.5rem 0;
+}
+
+.security-resources li {
+  padding: 0.75rem 0;
+  padding-left: 2rem;
+  position: relative;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.security-resources li::before {
+  content: '📚';
+  position: absolute;
+  left: 0;
+  font-size: 1.25rem;
+}
+
+.security-resources li:last-child {
+  border-bottom: none;
+}
+
+.security-note {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border-left: 4px solid var(--color-primary);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  margin-top: 2rem;
+}
+
+.security-note h5 {
+  color: var(--color-primary-dark);
+  margin-top: 0;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.security-note h5::before {
+  content: '💡';
+  font-size: 1.5rem;
+}
+
+.security-note ol,
+.security-note ul {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.security-note li {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+}
+
+.security-note p {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+}
+
+/* Responsive sécurité */
+@media (max-width: 768px) {
+  .security-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .exploit-code,
+  .code-example {
+    font-size: 0.75rem;
+    padding: 0.875rem;
+  }
+
+  .protection-item {
+    padding: 1.5rem;
+  }
+}
