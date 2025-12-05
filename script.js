@@ -28,21 +28,60 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Effet de parallaxe léger sur le header au scroll
+  // Effet de parallaxe léger sur le header au scroll amélioré
   let lastScroll = 0;
   const header = document.querySelector('.site-header');
   
   window.addEventListener('scroll', function() {
     const currentScroll = window.pageYOffset;
     
-    if (currentScroll > 100) {
-      header.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+    if (currentScroll > 50) {
+      header.classList.add('scrolled');
     } else {
-      header.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)';
+      header.classList.remove('scrolled');
     }
     
     lastScroll = currentScroll;
   });
+
+  // Mise à jour de l'indicateur de section active
+  function updateActiveNav() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const scrollPosition = window.pageYOffset + 150;
+
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      const sectionId = section.getAttribute('id');
+
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          const linkSection = link.getAttribute('data-section');
+          if (linkSection === sectionId) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+
+    // Si on est en haut de la page, activer "Accueil"
+    if (window.pageYOffset < 100) {
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-section') === 'accueil') {
+          link.classList.add('active');
+        }
+      });
+    }
+  }
+
+  // Mettre à jour au scroll
+  window.addEventListener('scroll', updateActiveNav);
+  
+  // Mettre à jour au chargement
+  updateActiveNav();
 
   // Gestion du formulaire de diagnostic
   const diagnosticForm = document.getElementById('diagnostic-form');

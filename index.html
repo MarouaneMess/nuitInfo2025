@@ -18,32 +18,70 @@
   </head>
   <body>
     <header class="site-header">
-      <div class="brand">
-        <div class="brand-logo" aria-hidden="true">🌿</div>
-        <div class="brand-text">
-          <h1>Village Numérique Résistant</h1>
-          <p>Démarrer la démarche NIRD dans ton établissement</p>
-          <!-- Easter egg subtil : indice pour le jeu Snake -->
-          <p class="easter-egg-hint" style="font-size: 0.7rem; opacity: 0.3; margin-top: 0.5rem; font-style: italic; cursor: help;" title="Tapez N-I-R-D pour découvrir un secret...">
-            🐍
-          </p>
+      <div class="header-content">
+        <div class="brand">
+          <div class="brand-logo" aria-hidden="true">🌿</div>
+          <div class="brand-text">
+            <h1>Village Numérique Résistant</h1>
+            <p>Démarrer la démarche NIRD dans ton établissement</p>
+            <!-- Easter egg subtil : indice pour le jeu Snake -->
+            <p class="easter-egg-hint" style="font-size: 0.7rem; opacity: 0.3; margin-top: 0.5rem; font-style: italic; cursor: help;" title="Tapez N-I-R-D pour découvrir un secret...">
+              🐍
+            </p>
+          </div>
         </div>
+        <nav class="main-nav" aria-label="Navigation principale">
+          <button class="nav-toggle" aria-expanded="false" aria-label="Ouvrir le menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <ul class="nav-links">
+            <li>
+              <a href="#accueil" class="nav-link" data-section="accueil">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Accueil</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#diagnostic" class="nav-link" data-section="diagnostic">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Diagnostic</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#fiches-actions" class="nav-link" data-section="fiches-actions">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Fiches-actions</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#ressources" class="nav-link" data-section="ressources">
+                <span class="nav-icon">📚</span>
+                <span class="nav-text">Ressources</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#jeu" class="nav-link" data-section="jeu">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-text">Mini-Jeu</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+            <li>
+              <a href="#securite" class="nav-link" data-section="securite">
+                <span class="nav-icon">🔒</span>
+                <span class="nav-text">Sécurité</span>
+                <span class="nav-indicator"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
-      <nav class="main-nav" aria-label="Navigation principale">
-        <button class="nav-toggle" aria-expanded="false" aria-label="Ouvrir le menu">
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-        </button>
-        <ul class="nav-links">
-          <li><a href="#accueil">🏠 Accueil</a></li>
-          <li><a href="#diagnostic">📊 Diagnostic NIRD</a></li>
-          <li><a href="#fiches-actions">📋 Fiches-actions</a></li>
-          <li><a href="#ressources">📚 Ressources</a></li>
-          <li><a href="#jeu">🎮 Mini-Jeu N(I)RD</a></li>
-          <li><a href="#securite">🔒 Sécurité & Faille</a></li>
-        </ul>
-      </nav>
     </header>
 
     <main>
@@ -813,14 +851,38 @@ function sanitizeInput(input) {<br>
     </main>
 
     <footer class="site-footer">
-      <p>
-        Contenus textuels sous licence <strong>CC BY-SA 4.0</strong>. Code source (HTML/CSS/JS)
-        sous licence <strong>MIT</strong>. Images et icônes : utiliser uniquement des ressources
-        libres (par ex. bibliothèques d'icônes sous licence libre).
-      </p>
-      <p>
-        Prototype créé pour la <strong>Nuit de l'Info 2025</strong> – « Le Village Numérique Résistant ».
-      </p>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>À propos</h4>
+          <p>
+            Prototype créé pour la <strong>Nuit de l'Info 2025</strong> – « Le Village Numérique Résistant ».
+          </p>
+          <p class="footer-author">
+            Créé avec ❤️ par <strong>Marouane</strong>
+          </p>
+        </div>
+        <div class="footer-section">
+          <h4>Licences</h4>
+          <p>
+            Contenus textuels sous licence <strong>CC BY-SA 4.0</strong>.<br>
+            Code source (HTML/CSS/JS) sous licence <strong>MIT</strong>.<br>
+            Images et icônes : utiliser uniquement des ressources libres.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h4>Navigation rapide</h4>
+          <ul class="footer-links">
+            <li><a href="#accueil">🏠 Accueil</a></li>
+            <li><a href="#diagnostic">📊 Diagnostic</a></li>
+            <li><a href="#fiches-actions">📋 Fiches-actions</a></li>
+            <li><a href="#ressources">📚 Ressources</a></li>
+            <li><a href="#jeu">🎮 Mini-Jeu</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Village Numérique Résistant – Tous droits réservés (sous licence libre)</p>
+      </div>
     </footer>
 
     <!-- Chatbot -->
