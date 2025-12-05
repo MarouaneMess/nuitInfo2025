@@ -10,8 +10,11 @@
     />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="retro-gaming.css" />
+    <link rel="stylesheet" href="snake-game.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   </head>
   <body>
     <header class="site-header">
@@ -20,6 +23,10 @@
         <div class="brand-text">
           <h1>Village Numérique Résistant</h1>
           <p>Démarrer la démarche NIRD dans ton établissement</p>
+          <!-- Easter egg subtil : indice pour le jeu Snake -->
+          <p class="easter-egg-hint" style="font-size: 0.7rem; opacity: 0.3; margin-top: 0.5rem; font-style: italic; cursor: help;" title="Tapez N-I-R-D pour découvrir un secret...">
+            🐍
+          </p>
         </div>
       </div>
       <nav class="main-nav" aria-label="Navigation principale">
@@ -59,8 +66,23 @@
               <li>Obtenir un <strong>plan d’actions concret</strong> et des fiches prêtes à l’emploi</li>
             </ul>
             <div class="hero-actions">
-              <a href="#diagnostic" class="btn primary">🚀 Commencer le diagnostic</a>
-              <a href="#ressources" class="btn ghost">📚 Voir les ressources libres</a>
+              <a href="#diagnostic" class="btn primary cta-pulse">
+                <span class="cta-text">🚀 Commencer le diagnostic</span>
+                <span class="cta-arrow">→</span>
+                <span class="cta-glow"></span>
+              </a>
+              <a href="#ressources" class="btn ghost">
+                <span class="cta-text">📚 Voir les ressources libres</span>
+                <span class="cta-arrow">→</span>
+              </a>
+            </div>
+            
+            <!-- Dark pattern éthique : engagement progressif -->
+            <div class="engagement-banner" id="engagement-banner" style="display: none;">
+              <div class="engagement-content">
+                <p>💡 <strong>Astuce</strong> : Complète le diagnostic pour débloquer des recommandations personnalisées !</p>
+                <button class="engagement-close" aria-label="Fermer">×</button>
+              </div>
             </div>
           </div>
           <div class="hero-card" aria-label="Illustration du village numérique">
@@ -245,8 +267,9 @@
             </div>
           </div>
 
-          <button type="submit" class="btn primary full-width">
-            ✨ Voir mon plan d'actions NIRD
+          <button type="submit" class="btn primary full-width cta-magnetic" id="submit-diagnostic">
+            <span class="btn-text">✨ Voir mon plan d'actions NIRD</span>
+            <span class="cta-ripple"></span>
           </button>
         </form>
 
@@ -458,33 +481,87 @@
         </div>
       </section>
 
-      <!-- MINI-JEU N(I)RD -->
-      <section id="jeu" class="section game" aria-labelledby="titre-jeu">
+      <!-- MINI-JEU N(I)RD - STYLE RÉTRO GAMING -->
+      <section id="jeu" class="section game retro-gaming-section" aria-labelledby="titre-jeu">
         <div class="section-header">
-          <h2 id="titre-jeu">🎮 Mini-Jeu : Construis le I de N(I)RD</h2>
-          <p>
+          <h2 id="titre-jeu" class="retro-title">🎮 MINI-JEU RÉTRO : CONSTRUIS LE I</h2>
+          <p class="retro-subtitle">
             Le <strong>I</strong> de NIRD signifie <strong>Inclusif</strong>. 
             Collecte les éléments inclusifs qui tombent pour construire le I et compléter NIRD !
+            <span class="retro-blink">_</span>
           </p>
         </div>
-
-        <div class="game-container">
-          <div class="game-header">
-            <div class="game-score">
-              <span class="score-label">Éléments collectés :</span>
-              <span id="game-score" class="score-value">0</span>
-              <span class="score-separator">/</span>
-              <span id="game-total" class="score-total">5</span>
+        
+        <!-- Système de badges et progression -->
+        <div class="gamification-panel">
+          <div class="badges-container">
+            <h3 class="retro-h3">🏆 BADGES DÉBLOQUÉS</h3>
+            <div class="badges-grid" id="badges-grid">
+              <div class="badge-item locked" data-badge="first-play">
+                <div class="badge-icon">🎮</div>
+                <div class="badge-name">Premier Pas</div>
+              </div>
+              <div class="badge-item locked" data-badge="speed-demon">
+                <div class="badge-icon">⚡</div>
+                <div class="badge-name">Vitesse</div>
+              </div>
+              <div class="badge-item locked" data-badge="perfect-score">
+                <div class="badge-icon">💯</div>
+                <div class="badge-name">Parfait</div>
+              </div>
+              <div class="badge-item locked" data-badge="master">
+                <div class="badge-icon">👑</div>
+                <div class="badge-name">Maître</div>
+              </div>
             </div>
-            <div class="game-timer">
-              <span class="timer-label">⏱️ Temps :</span>
-              <span id="game-timer" class="timer-value">60</span>s
+          </div>
+          <div class="stats-container">
+            <h3 class="retro-h3">📊 STATISTIQUES</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-value" id="total-games">0</div>
+                <div class="stat-label">Parties</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="best-score">0</div>
+                <div class="stat-label">Meilleur Score</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="badges-earned">0</div>
+                <div class="stat-label">Badges</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-container retro-game-container">
+          <!-- Canvas 3D pour effet rétro -->
+          <div id="retro-3d-canvas" class="retro-3d-background"></div>
+          
+          <div class="game-header retro-header">
+            <div class="retro-screen-border">
+              <div class="retro-screen">
+                <div class="game-score retro-score">
+                  <span class="score-label retro-label">SCORE:</span>
+                  <span id="game-score" class="score-value retro-value">000</span>
+                  <span class="score-separator">/</span>
+                  <span id="game-total" class="score-total">005</span>
+                </div>
+                <div class="game-timer retro-timer">
+                  <span class="timer-label retro-label">TIME:</span>
+                  <span id="game-timer" class="timer-value retro-value">060</span>
+                </div>
+                <div class="game-level">
+                  <span class="level-label retro-label">LEVEL:</span>
+                  <span id="game-level" class="level-value retro-value">01</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="game-word">
-            <div class="word-letter" data-letter="N">N</div>
-            <div class="word-letter" data-letter="I" id="letter-i">
+          <div class="game-word retro-word">
+            <div class="word-letter retro-letter" data-letter="N">N</div>
+            <div class="word-letter retro-letter" data-letter="I" id="letter-i">
               <div class="letter-parts">
                 <div class="letter-part" id="part-1"></div>
                 <div class="letter-part" id="part-2"></div>
@@ -493,32 +570,50 @@
                 <div class="letter-part" id="part-5"></div>
               </div>
             </div>
-            <div class="word-letter" data-letter="R">R</div>
-            <div class="word-letter" data-letter="D">D</div>
+            <div class="word-letter retro-letter" data-letter="R">R</div>
+            <div class="word-letter retro-letter" data-letter="D">D</div>
           </div>
 
-          <div class="game-instructions">
-            <p>👆 Clique sur les éléments <strong>inclusifs</strong> qui tombent !</p>
-            <p>❌ Évite les éléments <strong>non inclusifs</strong> !</p>
+          <div class="game-instructions retro-instructions">
+            <div class="retro-instruction-box">
+              <p class="retro-text">▶ CLIQUE SUR LES ÉLÉMENTS INCLUSIFS</p>
+              <p class="retro-text">▶ ÉVITE LES ÉLÉMENTS NON INCLUSIFS</p>
+              <p class="retro-text">▶ CONSTRUIS LE I POUR GAGNER!</p>
+            </div>
           </div>
 
-          <div class="game-area" id="game-area">
+          <div class="game-area retro-game-area" id="game-area">
+            <div class="retro-scanlines"></div>
             <!-- Les éléments tomberont ici -->
           </div>
+          
+          <!-- Barre de progression rétro -->
+          <div class="retro-progress-container">
+            <div class="retro-progress-label">PROGRESSION</div>
+            <div class="retro-progress-bar">
+              <div class="retro-progress-fill" id="retro-progress-fill"></div>
+              <div class="retro-progress-pixels"></div>
+            </div>
+          </div>
 
-          <div class="game-actions">
-            <button id="game-start" class="btn primary">
-              🚀 Commencer le jeu
+          <div class="game-actions retro-actions">
+            <button id="game-start" class="btn retro-btn primary">
+              <span class="retro-btn-text">▶ START GAME</span>
+              <span class="retro-btn-glow"></span>
             </button>
-            <button id="game-restart" class="btn ghost" style="display: none;">
-              🔄 Rejouer
+            <button id="game-restart" class="btn retro-btn ghost" style="display: none;">
+              <span class="retro-btn-text">▶ RESTART</span>
+              <span class="retro-btn-glow"></span>
             </button>
           </div>
 
-          <div class="game-result" id="game-result" style="display: none;">
-            <h3 id="result-title">🎉 Félicitations !</h3>
-            <p id="result-message"></p>
-            <div class="result-badge-game" id="result-badge"></div>
+          <div class="game-result retro-result" id="game-result" style="display: none;">
+            <div class="retro-result-screen">
+              <h3 id="result-title" class="retro-result-title">GAME OVER</h3>
+              <p id="result-message" class="retro-result-message"></p>
+              <div class="result-badge-game retro-badge" id="result-badge"></div>
+              <div class="retro-high-score" id="high-score-display"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -768,7 +863,9 @@ function sanitizeInput(input) {<br>
       </div>
     </div>
 
+    <script src="threejs-integration.js"></script>
     <script src="script.js"></script>
+    <script src="snake-game.js"></script>
   </body>
 </html>
 

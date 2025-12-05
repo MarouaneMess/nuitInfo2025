@@ -1003,7 +1003,7 @@ const gameElements = [
   { text: '❌ Pas d\'accessibilité', type: 'non-inclusive', icon: '🚪' }
 ];
 
-// État du jeu
+// État du jeu avec gamification
 let gameState = {
   score: 0,
   target: 5,
@@ -1012,11 +1012,133 @@ let gameState = {
   isPlaying: false,
   elements: [],
   collected: 0,
-  missed: 0
+  missed: 0,
+  level: 1,
+  totalGames: parseInt(localStorage.getItem('totalGames') || '0'),
+  bestScore: parseInt(localStorage.getItem('bestScore') || '0'),
+  badges: JSON.parse(localStorage.getItem('badges') || '[]')
 };
 
+// Système de badges
+const badges = {
+  'first-play': { name: 'Premier Pas', icon: '🎮', condition: () => gameState.totalGames >= 1 },
+  'speed-demon': { name: 'Vitesse', icon: '⚡', condition: () => gameState.timer > 40 && gameState.collected >= gameState.target },
+  'perfect-score': { name: 'Parfait', icon: '💯', condition: () => gameState.missed === 0 && gameState.collected >= gameState.target },
+  'master': { name: 'Maître', icon: '👑', condition: () => gameState.totalGames >= 5 && gameState.bestScore >= 5 }
+};
+
+// Fonction pour vérifier et débloquer les badges
+function checkBadges() {
+  // S'assurer que gameState.badges est un tableau
+  if (!Array.isArray(gameState.badges)) {
+    gameState.badges = JSON.parse(localStorage.getItem('badges') || '[]');
+  }
+  
+  Object.keys(badges).forEach(badgeId => {
+    if (gameState.badges && !gameState.badges.includes(badgeId) && badges[badgeId].condition()) {
+      unlockBadge(badgeId);
+    }
+  });
+}
+
+// Fonction pour débloquer un badge
+function unlockBadge(badgeId) {
+  // S'assurer que gameState.badges est un tableau
+  if (!Array.isArray(gameState.badges)) {
+    gameState.badges = JSON.parse(localStorage.getItem('badges') || '[]');
+  }
+  
+  if (gameState.badges.includes(badgeId)) return;
+  
+  gameState.badges.push(badgeId);
+  localStorage.setItem('badges', JSON.stringify(gameState.badges));
+  
+  const badgeElement = document.querySelector(`[data-badge="${badgeId}"]`);
+  if (badgeElement) {
+    badgeElement.classList.remove('locked');
+    badgeElement.classList.add('unlocked');
+    
+    // Animation de notification
+    showBadgeNotification(badges[badgeId].name, badges[badgeId].icon);
+  }
+  
+  updateBadgesDisplay();
+}
+
+// Afficher une notification de badge
+function showBadgeNotification(name, icon) {
+  const notification = document.createElement('div');
+  notification.className = 'badge-notification';
+  notification.innerHTML = `
+    <div class="badge-notification-content">
+      <div class="badge-notification-icon">${icon}</div>
+      <div class="badge-notification-text">
+        <strong>BADGE DÉBLOQUÉ !</strong><br>
+        ${name}
+      </div>
+    </div>
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.classList.add('show');
+  }, 100);
+  
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 500);
+  }, 3000);
+}
+
+// Mettre à jour l'affichage des badges
+function updateBadgesDisplay() {
+  const badgesGrid = document.getElementById('badges-grid');
+  if (!badgesGrid) return;
+  
+  // S'assurer que gameState.badges est un tableau
+  if (!Array.isArray(gameState.badges)) {
+    gameState.badges = JSON.parse(localStorage.getItem('badges') || '[]');
+  }
+  
+  Object.keys(badges).forEach(badgeId => {
+    const badgeElement = badgesGrid.querySelector(`[data-badge="${badgeId}"]`);
+    if (badgeElement) {
+      if (gameState.badges && gameState.badges.includes(badgeId)) {
+        badgeElement.classList.remove('locked');
+        badgeElement.classList.add('unlocked');
+      } else {
+        badgeElement.classList.add('locked');
+        badgeElement.classList.remove('unlocked');
+      }
+    }
+  });
+  
+  // Mettre à jour les statistiques
+  const badgesEarned = document.getElementById('badges-earned');
+  if (badgesEarned) {
+    badgesEarned.textContent = Array.isArray(gameState.badges) ? gameState.badges.length : 0;
+  }
+}
+
+// Mettre à jour les statistiques
+function updateStats() {
+  const totalGames = document.getElementById('total-games');
+  const bestScore = document.getElementById('best-score');
+  
+  if (totalGames) totalGames.textContent = gameState.totalGames;
+  if (bestScore) bestScore.textContent = gameState.bestScore;
+  
+  updateBadgesDisplay();
+}
+
 // Initialiser le jeu
 function initGame() {
+  // Préserver les propriétés de gamification
+  const preservedBadges = gameState.badges || JSON.parse(localStorage.getItem('badges') || '[]');
+  const preservedTotalGames = gameState.totalGames || parseInt(localStorage.getItem('totalGames') || '0');
+  const preservedBestScore = gameState.bestScore || parseInt(localStorage.getItem('bestScore') || '0');
+  const preservedLevel = gameState.level || 1;
+  
   gameState = {
     score: 0,
     target: 5,
@@ -1025,7 +1147,11 @@ function initGame() {
     isPlaying: false,
     elements: [],
     collected: 0,
-    missed: 0
+    missed: 0,
+    level: preservedLevel,
+    totalGames: preservedTotalGames,
+    bestScore: preservedBestScore,
+    badges: Array.isArray(preservedBadges) ? preservedBadges : []
   };
   
   // Réinitialiser l'UI
@@ -1068,60 +1194,7 @@ function initGame() {
   }
 }
 
-// Initialiser le jeu
-function initGame() {
-  gameState = {
-    score: 0,
-    target: 5,
-    timer: 60,
-    timerInterval: null,
-    isPlaying: false,
-    elements: [],
-    collected: 0,
-    missed: 0
-  };
-  
-  // Réinitialiser l'UI
-  const scoreEl = document.getElementById('game-score');
-  const totalEl = document.getElementById('game-total');
-  const timerEl = document.getElementById('game-timer');
-  const resultDiv = document.getElementById('game-result');
-  const startBtn = document.getElementById('game-start');
-  const restartBtn = document.getElementById('game-restart');
-  
-  if (scoreEl) scoreEl.textContent = '0';
-  if (totalEl) totalEl.textContent = gameState.target;
-  if (timerEl) {
-    timerEl.textContent = gameState.timer;
-    timerEl.classList.remove('warning');
-  }
-  if (resultDiv) resultDiv.style.display = 'none';
-  if (startBtn) startBtn.style.display = 'block';
-  if (restartBtn) restartBtn.style.display = 'none';
-  
-  // Réinitialiser la lettre I
-  const letterI = document.getElementById('letter-i');
-  if (letterI) {
-    letterI.classList.remove('complete');
-    for (let i = 1; i <= 5; i++) {
-      const part = document.getElementById(`part-${i}`);
-      if (part) part.classList.remove('collected');
-    }
-  }
-  
-  // Vider la zone de jeu
-  const gameArea = document.getElementById('game-area');
-  if (gameArea) {
-    gameArea.innerHTML = '';
-  }
-  
-  // Arrêter le timer si actif
-  if (gameState.timerInterval) {
-    clearInterval(gameState.timerInterval);
-  }
-}
-
-// Démarrer le jeu
+// Démarrer le jeu avec gamification
 function startGame() {
   if (gameState.isPlaying) return;
   
@@ -1130,6 +1203,14 @@ function startGame() {
   gameState.collected = 0;
   gameState.missed = 0;
   gameState.timer = 60;
+  gameState.totalGames++;
+  localStorage.setItem('totalGames', gameState.totalGames.toString());
+  
+  // Mettre à jour l'affichage
+  updateStats();
+  
+  // Vérifier le badge "Premier Pas"
+  checkBadges();
   
   const startBtn = document.getElementById('game-start');
   const resultDiv = document.getElementById('game-result');
@@ -1294,15 +1375,16 @@ function showFeedback(text, type) {
   }, 800);
 }
 
-// Mettre à jour le score
+// Mettre à jour le score avec formatage rétro
 function updateScore() {
   const scoreEl = document.getElementById('game-score');
   if (scoreEl) {
-    scoreEl.textContent = gameState.collected;
+    scoreEl.textContent = String(gameState.collected).padStart(3, '0');
   }
+  updateRetroProgress();
 }
 
-// Terminer le jeu
+// Terminer le jeu avec gamification
 function endGame(won = false) {
   gameState.isPlaying = false;
   
@@ -1320,33 +1402,137 @@ function endGame(won = false) {
   const resultMessage = document.getElementById('result-message');
   const resultBadge = document.getElementById('result-badge');
   const restartBtn = document.getElementById('game-restart');
+  const highScoreDisplay = document.getElementById('high-score-display');
   
   if (!resultDiv || !resultTitle || !resultMessage || !resultBadge) return;
   
+  // Mettre à jour le meilleur score
+  if (gameState.collected > gameState.bestScore) {
+    gameState.bestScore = gameState.collected;
+    localStorage.setItem('bestScore', gameState.bestScore.toString());
+  }
+  
+  // Vérifier les badges
+  checkBadges();
+  updateStats();
+  
   if (won || gameState.collected >= gameState.target) {
-    resultTitle.textContent = '🎉 Félicitations !';
+    resultTitle.textContent = 'VICTORY!';
     resultMessage.innerHTML = `
-      <p>Tu as construit le <strong>I</strong> de NIRD !</p>
-      <p>Éléments inclusifs collectés : <strong>${gameState.collected}/${gameState.target}</strong></p>
-      <p>Le numérique <strong>Inclusif</strong>, c'est ça ! 🌿</p>
+      <p>YOU COMPLETED THE I!</p>
+      <p>SCORE: <strong>${gameState.collected}/${gameState.target}</strong></p>
+      <p>INCLUSIVE NUMÉRIQUE MASTER!</p>
     `;
-    resultBadge.textContent = '🏆 Expert en Inclusion Numérique';
-    resultBadge.style.background = 'linear-gradient(135deg, var(--color-success), var(--color-primary))';
+    resultBadge.textContent = '🏆 EXPERT BADGE';
+    
+    // Vérifier les badges de performance
+    if (gameState.missed === 0) {
+      unlockBadge('perfect-score');
+    }
+    if (gameState.timer > 40) {
+      unlockBadge('speed-demon');
+    }
   } else {
-    resultTitle.textContent = '⏱️ Temps écoulé !';
+    resultTitle.textContent = 'GAME OVER';
     resultMessage.innerHTML = `
-      <p>Tu as collecté <strong>${gameState.collected}/${gameState.target}</strong> éléments inclusifs.</p>
-      <p>Continue pour compléter le I de NIRD ! 💪</p>
+      <p>SCORE: <strong>${gameState.collected}/${gameState.target}</strong></p>
+      <p>TRY AGAIN TO COMPLETE THE I!</p>
     `;
-    resultBadge.textContent = '🔄 Essaie encore';
-    resultBadge.style.background = 'linear-gradient(135deg, var(--color-warning), var(--color-secondary))';
+    resultBadge.textContent = '🔄 RESTART';
+  }
+  
+  // Afficher le meilleur score
+  if (highScoreDisplay) {
+    highScoreDisplay.innerHTML = `
+      <p>HIGH SCORE: ${gameState.bestScore}</p>
+      <p>TOTAL GAMES: ${gameState.totalGames}</p>
+    `;
   }
   
   resultDiv.style.display = 'block';
   if (restartBtn) restartBtn.style.display = 'block';
+  
+  // Mettre à jour la progression
+  updateRetroProgress();
+  
+  // Confetti pour la victoire
+  if (won) {
+    setTimeout(() => createConfetti(150), 300);
+  }
 }
 
-// Initialiser le jeu au chargement
+// Fonction pour créer des confettis
+function createConfetti(count = 100) {
+  const colors = ['#00ff41', '#ff0080', '#00ffff', '#ffff00', '#ff00ff'];
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.top = '0';
+  container.style.left = '0';
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.pointerEvents = 'none';
+  container.style.zIndex = '10000';
+  document.body.appendChild(container);
+  
+  for (let i = 0; i < count; i++) {
+    const confetti = document.createElement('div');
+    confetti.style.position = 'absolute';
+    confetti.style.width = '10px';
+    confetti.style.height = '10px';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.top = '-10px';
+    confetti.style.borderRadius = '50%';
+    confetti.style.opacity = '0.8';
+    container.appendChild(confetti);
+    
+    const duration = 3 + Math.random() * 2;
+    const delay = Math.random() * 0.5;
+    const x = (Math.random() - 0.5) * 200;
+    
+    confetti.style.animation = `confettiFall ${duration}s ${delay}s ease-out forwards`;
+    confetti.style.setProperty('--x', x + 'px');
+  }
+  
+  setTimeout(() => {
+    container.remove();
+  }, 5000);
+}
+
+// Ajouter l'animation CSS pour les confettis
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes confettiFall {
+    to {
+      transform: translate(var(--x), 100vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+// Mettre à jour la barre de progression rétro
+function updateRetroProgress() {
+  const progressFill = document.getElementById('retro-progress-fill');
+  if (progressFill) {
+    const progress = (gameState.collected / gameState.target) * 100;
+    progressFill.style.width = progress + '%';
+  }
+  
+  // Mettre à jour le niveau
+  const levelDisplay = document.getElementById('game-level');
+  if (levelDisplay) {
+    levelDisplay.textContent = String(gameState.level).padStart(2, '0');
+  }
+  
+  // Mettre à jour le score avec formatage rétro
+  const scoreDisplay = document.getElementById('game-score');
+  if (scoreDisplay) {
+    scoreDisplay.textContent = String(gameState.collected).padStart(3, '0');
+  }
+}
+
+// Initialiser le jeu au chargement avec gamification
 document.addEventListener('DOMContentLoaded', function() {
   const startBtn = document.getElementById('game-start');
   const restartBtn = document.getElementById('game-restart');
@@ -1364,6 +1550,54 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialiser le jeu si la section existe
   if (document.getElementById('jeu')) {
     initGame();
+    updateStats();
+    updateBadgesDisplay();
   }
+  
+  // Dark pattern éthique : engagement progressif
+  setTimeout(() => {
+    const engagementBanner = document.getElementById('engagement-banner');
+    const diagnosticForm = document.getElementById('diagnostic-form');
+    
+    // Afficher le banner seulement si le formulaire n'a pas été complété
+    if (engagementBanner && diagnosticForm) {
+      const hasCompleted = localStorage.getItem('diagnostic_completed');
+      if (!hasCompleted) {
+        engagementBanner.style.display = 'block';
+        
+        // Fermer le banner
+        const closeBtn = engagementBanner.querySelector('.engagement-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', () => {
+            engagementBanner.style.display = 'none';
+          });
+        }
+        
+        // Masquer après soumission du formulaire
+        diagnosticForm.addEventListener('submit', () => {
+          localStorage.setItem('diagnostic_completed', 'true');
+          engagementBanner.style.display = 'none';
+        });
+      }
+    }
+  }, 3000);
+  
+  // Ajouter l'effet ripple aux boutons CTA
+  document.querySelectorAll('.cta-magnetic').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const ripple = this.querySelector('.cta-ripple');
+      if (ripple) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.style.animation = 'none';
+        setTimeout(() => {
+          ripple.style.animation = 'ripple 0.6s ease-out';
+        }, 10);
+      }
+    });
+  });
 });
 

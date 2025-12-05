@@ -1,0 +1,681 @@
+/* ============================================
+   STYLE RÉTRO GAMING POUR LE MINI-JEU
+   ============================================ */
+
+.retro-gaming-section {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  position: relative;
+  overflow: hidden;
+  border: 4px solid #00ff41;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+}
+
+.retro-gaming-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.03) 2px,
+      rgba(0, 255, 65, 0.03) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.retro-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: #00ff41;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41,
+    0 0 30px #00ff41;
+  animation: retroGlow 2s ease-in-out infinite alternate;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes retroGlow {
+  0% {
+    text-shadow: 
+      0 0 10px #00ff41,
+      0 0 20px #00ff41,
+      0 0 30px #00ff41;
+  }
+  100% {
+    text-shadow: 
+      0 0 20px #00ff41,
+      0 0 30px #00ff41,
+      0 0 40px #00ff41,
+      0 0 50px #00ff41;
+  }
+}
+
+.retro-subtitle {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: #00ff41;
+  line-height: 1.8;
+}
+
+.retro-blink {
+  animation: blink 1s infinite;
+  color: #00ff41;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Panel de gamification */
+.gamification-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff41;
+  border-radius: 8px;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.3),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+}
+
+.retro-h3 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.875rem;
+  color: #00ff41;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-shadow: 0 0 10px #00ff41;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.badge-item {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-item.locked {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+.badge-item.unlocked {
+  border-color: #00ff41;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.5);
+  animation: badgeUnlock 0.6s ease;
+}
+
+@keyframes badgeUnlock {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.badge-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+.badge-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.625rem;
+  color: #00ff41;
+  text-transform: uppercase;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #00ff41;
+  border-radius: 8px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.5rem;
+  color: #00ff41;
+  text-shadow: 0 0 10px #00ff41;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.625rem;
+  color: #00ff41;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+/* Container de jeu rétro */
+.retro-game-container {
+  position: relative;
+  background: #000;
+  border: 4px solid #00ff41;
+  border-radius: 0;
+  padding: 2rem;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.5),
+    inset 0 0 30px rgba(0, 255, 65, 0.1);
+  overflow: hidden;
+}
+
+.retro-3d-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.retro-3d-background canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.retro-header {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2rem;
+}
+
+.retro-screen-border {
+  background: #1a1a1a;
+  border: 3px solid #00ff41;
+  padding: 1rem;
+  box-shadow: 
+    inset 0 0 20px rgba(0, 255, 65, 0.2),
+    0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+.retro-screen {
+  background: #000;
+  border: 2px solid #00ff41;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-family: 'Press Start 2P', monospace;
+}
+
+.retro-label {
+  color: #00ff41;
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  text-shadow: 0 0 5px #00ff41;
+}
+
+.retro-value {
+  color: #00ff41;
+  font-size: 1.25rem;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41;
+  min-width: 60px;
+  text-align: right;
+}
+
+.retro-score,
+.retro-timer,
+.game-level {
+  display: flex;
+  align-items: center;
+}
+
+/* Lettres rétro */
+.retro-word {
+  position: relative;
+  z-index: 2;
+  margin: 2rem 0;
+}
+
+.retro-letter {
+  background: #000 !important;
+  border: 3px solid #00ff41 !important;
+  color: #00ff41 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 2.5rem !important;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1) !important;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41 !important;
+}
+
+.retro-letter[data-letter="I"] {
+  background: rgba(0, 255, 65, 0.1) !important;
+}
+
+.retro-letter[data-letter="I"].complete {
+  background: rgba(0, 255, 65, 0.3) !important;
+  animation: retroPulse 1s ease-in-out infinite;
+}
+
+@keyframes retroPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 65, 0.5),
+      inset 0 0 20px rgba(0, 255, 65, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 40px rgba(0, 255, 65, 0.8),
+      inset 0 0 30px rgba(0, 255, 65, 0.3);
+  }
+}
+
+.letter-part {
+  background: rgba(0, 255, 65, 0.2) !important;
+  border: 1px solid #00ff41 !important;
+}
+
+.letter-part.collected {
+  background: #00ff41 !important;
+  box-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41 !important;
+  animation: retroCollect 0.5s ease;
+}
+
+@keyframes retroCollect {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Instructions rétro */
+.retro-instructions {
+  position: relative;
+  z-index: 2;
+  margin: 2rem 0;
+}
+
+.retro-instruction-box {
+  background: #000;
+  border: 2px solid #00ff41;
+  padding: 1.5rem;
+  box-shadow: 
+    inset 0 0 20px rgba(0, 255, 65, 0.2),
+    0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+.retro-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: #00ff41;
+  margin: 0.75rem 0;
+  text-shadow: 0 0 5px #00ff41;
+  line-height: 1.8;
+}
+
+/* Zone de jeu rétro */
+.retro-game-area {
+  position: relative;
+  z-index: 2;
+  background: #000 !important;
+  border: 3px solid #00ff41 !important;
+  box-shadow: 
+    inset 0 0 30px rgba(0, 255, 65, 0.2),
+    0 0 30px rgba(0, 255, 65, 0.5) !important;
+}
+
+.retro-scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 65, 0.03),
+    rgba(0, 255, 65, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: scanlineMove 8s linear infinite;
+}
+
+@keyframes scanlineMove {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(10px);
+  }
+}
+
+/* Éléments qui tombent style rétro */
+.falling-element {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 0.75rem !important;
+  border: 2px solid !important;
+  border-radius: 0 !important;
+  box-shadow: 
+    0 0 10px currentColor,
+    inset 0 0 10px currentColor !important;
+  text-shadow: 0 0 5px currentColor !important;
+}
+
+.falling-element.inclusive {
+  background: rgba(0, 255, 65, 0.2) !important;
+  border-color: #00ff41 !important;
+  color: #00ff41 !important;
+}
+
+.falling-element.non-inclusive {
+  background: rgba(255, 0, 0, 0.2) !important;
+  border-color: #ff0000 !important;
+  color: #ff0000 !important;
+}
+
+/* Barre de progression rétro */
+.retro-progress-container {
+  position: relative;
+  z-index: 2;
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #000;
+  border: 2px solid #00ff41;
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.2);
+}
+
+.retro-progress-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: #00ff41;
+  margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 0 0 5px #00ff41;
+}
+
+.retro-progress-bar {
+  width: 100%;
+  height: 30px;
+  background: #000;
+  border: 2px solid #00ff41;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+.retro-progress-fill {
+  height: 100%;
+  background: #00ff41;
+  box-shadow: 
+    0 0 20px #00ff41,
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.retro-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.3) 4px,
+    rgba(0, 0, 0, 0.3) 8px
+  );
+}
+
+.retro-progress-pixels {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 4px,
+      rgba(0, 255, 65, 0.1) 4px,
+      rgba(0, 255, 65, 0.1) 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 4px,
+      rgba(0, 255, 65, 0.1) 4px,
+      rgba(0, 255, 65, 0.1) 5px
+    );
+  pointer-events: none;
+}
+
+/* Boutons rétro */
+.retro-btn {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 0.875rem !important;
+  padding: 1.25rem 2.5rem !important;
+  border: 3px solid #00ff41 !important;
+  border-radius: 0 !important;
+  background: #000 !important;
+  color: #00ff41 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.retro-btn-text {
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 0 10px #00ff41;
+}
+
+.retro-btn-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(0, 255, 65, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.retro-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.8),
+    inset 0 0 30px rgba(0, 255, 65, 0.2) !important;
+  border-color: #00ff88 !important;
+}
+
+.retro-btn:hover .retro-btn-glow {
+  width: 300px;
+  height: 300px;
+}
+
+.retro-btn:active {
+  transform: translateY(0) !important;
+  box-shadow: 
+    0 0 10px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.3) !important;
+}
+
+/* Résultat rétro */
+.retro-result {
+  position: relative;
+  z-index: 2;
+}
+
+.retro-result-screen {
+  background: #000;
+  border: 4px solid #00ff41;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 
+    0 0 40px rgba(0, 255, 65, 0.6),
+    inset 0 0 40px rgba(0, 255, 65, 0.1);
+  animation: retroResultAppear 0.5s ease;
+}
+
+@keyframes retroResultAppear {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.retro-result-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2rem;
+  color: #00ff41;
+  text-shadow: 
+    0 0 20px #00ff41,
+    0 0 40px #00ff41;
+  margin-bottom: 1.5rem;
+  animation: retroGlow 1s ease-in-out infinite alternate;
+}
+
+.retro-result-message {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.875rem;
+  color: #00ff41;
+  line-height: 1.8;
+  margin: 1.5rem 0;
+}
+
+.retro-badge {
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 1rem !important;
+  background: #000 !important;
+  border: 3px solid #00ff41 !important;
+  color: #00ff41 !important;
+  padding: 1.5rem 2.5rem !important;
+  border-radius: 0 !important;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1) !important;
+  text-shadow: 0 0 10px #00ff41 !important;
+  animation: retroBadgePulse 2s ease-in-out infinite !important;
+}
+
+@keyframes retroBadgePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 0 30px rgba(0, 255, 65, 0.5),
+      inset 0 0 20px rgba(0, 255, 65, 0.1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 
+      0 0 50px rgba(0, 255, 65, 0.8),
+      inset 0 0 30px rgba(0, 255, 65, 0.2);
+  }
+}
+
+.retro-high-score {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: #00ff41;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 255, 65, 0.1);
+  border: 2px solid #00ff41;
+  text-shadow: 0 0 5px #00ff41;
+}
+
+/* Responsive rétro */
+@media (max-width: 768px) {
+  .gamification-panel {
+    grid-template-columns: 1fr;
+  }
+  
+  .badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .retro-screen {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .retro-title {
+    font-size: 1rem;
+  }
+  
+  .retro-subtitle {
+    font-size: 0.625rem;
+  }
+}
+

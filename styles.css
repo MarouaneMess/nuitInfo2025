@@ -326,6 +326,30 @@ a:hover {
   overflow: hidden;
 }
 
+/* Canvas 3D pour la section hero */
+#hero-3d-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  opacity: 0.25;
+  pointer-events: none;
+  border-radius: var(--radius-xl);
+}
+
+#hero-3d-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+}
+
 .hero::before {
   content: '';
   position: absolute;
@@ -1066,7 +1090,7 @@ legend {
   padding-left: 0.5rem;
 }
 
-/* Boutons modernes */
+/* Boutons modernes avec CTA améliorés */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -1082,6 +1106,78 @@ legend {
   font-size: 1rem;
   position: relative;
   overflow: hidden;
+}
+
+.cta-text {
+  position: relative;
+  z-index: 2;
+}
+
+.cta-arrow {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.btn:hover .cta-arrow {
+  transform: translateX(5px);
+}
+
+.cta-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+  z-index: 1;
+}
+
+.btn:hover .cta-glow {
+  width: 400px;
+  height: 400px;
+}
+
+.cta-pulse {
+  animation: ctaPulse 2s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6), 0 0 0 4px rgba(16, 185, 129, 0.1);
+  }
+}
+
+.cta-magnetic {
+  position: relative;
+}
+
+.cta-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.btn:active .cta-ripple {
+  animation: ripple 0.6s ease-out;
 }
 
 .btn::before {
@@ -1165,6 +1261,59 @@ legend {
 .site-footer strong {
   color: var(--color-primary-light);
   font-weight: 600;
+}
+
+/* Engagement banner (dark pattern éthique) */
+.engagement-banner {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.engagement-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.engagement-content p {
+  margin: 0;
+  flex: 1;
+}
+
+.engagement-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--color-text-light);
+  cursor: pointer;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  line-height: 1;
+}
+
+.engagement-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--color-text);
+  transform: rotate(90deg);
 }
 
 /* Responsive moderne */
@@ -1823,6 +1972,49 @@ legend {
   outline: 3px solid var(--color-primary);
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+/* Notification de badge */
+.badge-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  z-index: 10000;
+  transform: translateX(400px);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 350px;
+}
+
+.badge-notification.show {
+  transform: translateX(0);
+}
+
+.badge-notification-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.badge-notification-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+.badge-notification-text {
+  flex: 1;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.badge-notification-text strong {
+  display: block;
+  font-size: 1.125rem;
+  margin-bottom: 0.25rem;
 }
 
 /* Scrollbar moderne */

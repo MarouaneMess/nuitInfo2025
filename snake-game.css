@@ -1,0 +1,361 @@
+/* ============================================
+   STYLES POUR LE JEU SNAKE CACHÉ
+   Graphismes époustouflants style rétro
+   ============================================ */
+
+.snake-game-hidden {
+  display: none !important;
+}
+
+.snake-game-visible {
+  display: flex !important;
+}
+
+#snake-game-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  color: #00ff41;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+@keyframes snakeGameAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.snake-game-ui {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  max-width: 800px;
+  width: 100%;
+}
+
+.snake-game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.snake-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  color: #00ff41;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41,
+    0 0 30px #00ff41;
+  animation: snakeTitleGlow 2s ease-in-out infinite alternate;
+  margin: 0;
+}
+
+@keyframes snakeTitleGlow {
+  0% {
+    text-shadow: 
+      0 0 10px #00ff41,
+      0 0 20px #00ff41,
+      0 0 30px #00ff41;
+  }
+  100% {
+    text-shadow: 
+      0 0 20px #00ff41,
+      0 0 40px #00ff41,
+      0 0 60px #00ff41,
+      0 0 80px #00ff41;
+  }
+}
+
+.snake-close {
+  background: transparent;
+  border: 2px solid #00ff41;
+  color: #00ff41;
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Press Start 2P', monospace;
+  line-height: 1;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}
+
+.snake-close:hover {
+  background: #00ff41;
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.8);
+  transform: rotate(90deg);
+}
+
+.snake-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  width: 100%;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff41;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+}
+
+.snake-stat {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.snake-stat-label {
+  font-size: 0.75rem;
+  color: #00ff41;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.snake-stat-value {
+  font-size: 1.5rem;
+  color: #00ff41;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41;
+  font-weight: bold;
+}
+
+#snake-canvas {
+  border: 3px solid #00ff41;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.6),
+    inset 0 0 30px rgba(0, 255, 65, 0.1);
+  background: #000;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.snake-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.snake-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.875rem;
+  padding: 1rem 2rem;
+  background: #000;
+  border: 3px solid #00ff41;
+  color: #00ff41;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.snake-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(0, 255, 65, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.snake-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.snake-btn:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: 
+    0 0 30px rgba(0, 255, 65, 0.8),
+    inset 0 0 30px rgba(0, 255, 65, 0.2);
+  transform: translateY(-2px);
+}
+
+.snake-btn:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 0 10px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+.snake-instructions {
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ff41;
+  padding: 1.5rem;
+  width: 100%;
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.2);
+}
+
+.snake-instructions p {
+  font-size: 0.75rem;
+  color: #00ff41;
+  margin: 0.75rem 0;
+  text-shadow: 0 0 5px #00ff41;
+  line-height: 1.8;
+}
+
+.snake-game-over {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.9);
+  border: 4px solid #00ff41;
+  padding: 3rem;
+  box-shadow: 
+    0 0 40px rgba(0, 255, 65, 0.6),
+    inset 0 0 40px rgba(0, 255, 65, 0.1);
+  animation: snakeGameOverAppear 0.5s ease;
+}
+
+@keyframes snakeGameOverAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.snake-game-over h3 {
+  font-size: 2rem;
+  color: #00ff41;
+  text-shadow: 
+    0 0 20px #00ff41,
+    0 0 40px #00ff41;
+  margin-bottom: 1.5rem;
+  animation: snakeTitleGlow 1s ease-in-out infinite alternate;
+}
+
+.snake-game-over p {
+  font-size: 1rem;
+  color: #00ff41;
+  margin: 1.5rem 0;
+  text-shadow: 0 0 10px #00ff41;
+}
+
+.snake-confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: snakeConfettiFall 3s ease-out forwards;
+  box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes snakeConfettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Scanlines effect */
+#snake-canvas::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 65, 0.03),
+    rgba(0, 255, 65, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #snake-game-container {
+    padding: 1rem;
+  }
+  
+  .snake-title {
+    font-size: 1.2rem;
+  }
+  
+  .snake-stats {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  #snake-canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100%;
+  }
+  
+  .snake-controls {
+    flex-direction: column;
+  }
+  
+  .snake-btn {
+    width: 100%;
+  }
+}
+
+/* Effet de scanlines sur le canvas */
+#snake-canvas {
+  position: relative;
+}
+
+#snake-canvas::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 255, 65, 0.02),
+    rgba(0, 255, 65, 0.02) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
